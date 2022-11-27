@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEditBoxWPF", "TEditBoxWPF\TEditBoxWPF.csproj", "{49671584-2EBA-49E9-93F8-1102A63D371E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49671584-2EBA-49E9-93F8-1102A63D371E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49671584-2EBA-49E9-93F8-1102A63D371E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49671584-2EBA-49E9-93F8-1102A63D371E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49671584-2EBA-49E9-93F8-1102A63D371E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {785D9262-6074-4DF2-BD00-AB014981BBBD}
+	EndGlobalSection
+EndGlobal
