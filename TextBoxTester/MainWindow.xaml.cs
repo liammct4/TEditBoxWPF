@@ -24,5 +24,15 @@ namespace TextBoxTester
 		{
 			InitializeComponent();
 		}
+
+		private void LoadSampleText_Event(object sender, RoutedEventArgs e)
+		{
+			textBox.Text = TestData.SAMPLE_TEXT;
+		}
+
+		private void LoadLongSampleText_Event(object sender, RoutedEventArgs e)
+		{
+			textBox.Text = TestData.LONG_SAMPLE_TEXT;
+		}
 	}
 }

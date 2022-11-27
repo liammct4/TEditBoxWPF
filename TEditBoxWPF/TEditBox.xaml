@@ -23,7 +23,7 @@
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid>
-							<TextBlock Focusable="False"/>
+							<TextBlock Text="{Binding}" Focusable="False"/>
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>

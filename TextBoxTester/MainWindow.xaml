@@ -20,7 +20,9 @@
 					<Setter Property="Margin" Value="4 4 0 4"/>
 				</Style>
 			</StackPanel.Resources>
+			<Button Content="Load Sample Text" Click="LoadSampleText_Event"/>
+			<Button Content="Load Long Sample Text" Click="LoadLongSampleText_Event"/>
 		</StackPanel>
-		<text:TEditBox Grid.Row="2"/>
+		<text:TEditBox x:Name="textBox" Grid.Row="2"/>
 	</Grid>
 </Window>
