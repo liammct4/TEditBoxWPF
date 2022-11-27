@@ -25,11 +25,11 @@ namespace TEditBoxWPF
 			set
 			{
 				_text = value;
-				Lines = _text.Split(Environment.NewLine).ToList();
+				Lines = _text.Split(Environment.NewLine).Select(x => new TLine(x)).ToList();
 			}
 		}
 		private string _text;
-		internal List<string> Lines
+		internal List<TLine> Lines
 		{
 			get => _lines;
 			set
@@ -38,7 +38,7 @@ namespace TEditBoxWPF
 				TextDisplay.ItemsSource = value;
 			}
 		}
-		internal List<string> _lines;
+		internal List<TLine> _lines;
 
 		public TEditBox()
 		{
