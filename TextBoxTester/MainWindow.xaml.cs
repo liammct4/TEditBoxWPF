@@ -34,5 +34,10 @@ namespace TextBoxTester
 		{
 			textBox.Text = TestData.LONG_SAMPLE_TEXT;
 		}
+
+		private void LoadTabMeasureText_Event(object sender, RoutedEventArgs e)
+		{
+			textBox.Text = TestData.TAB_MEASURE_TEXT;
+		}
 	}
 }
