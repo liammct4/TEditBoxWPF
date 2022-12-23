@@ -6,21 +6,68 @@
 			 xmlns:local="clr-namespace:TEditBoxWPF"
 			 xmlns:convert="clr-namespace:TEditBoxWPF.Converters"
 			 xmlns:controls="clr-namespace:TEditBoxWPF.Controls"
+			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800"
 			 DataContext="{Binding RelativeSource={RelativeSource Self}}">
 	<UserControl.Resources>
 		<convert:TextTabWidthConverter x:Name="tabConverter" x:Key="tabConverter"/>
+		<convert:LineCountConverter x:Name="lineCountConverter" x:Key="lineCountConverter"/>
+		<BooleanToVisibilityConverter x:Key="visibilityConverter"/>
 	</UserControl.Resources>
-	<Border BorderThickness="1" Padding="0" BorderBrush="LightGray">
+	<Border BorderThickness="1"
+			Padding="4 0 0 0"
+			BorderBrush="#707070"
+			SnapsToDevicePixels="True">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
-			<!-- TODO: Import LineNumberDisplay code. -->
-			<ListBox MinWidth="20" Margin="0" x:Name="LineNumberDisplay"/>
-			<ItemsControl x:Name="TextDisplay" ItemsSource="{Binding Lines}" Grid.Column="1" Background="Transparent" Cursor="IBeam" VirtualizingPanel.ScrollUnit="Pixel">
+			<ItemsControl x:Name="LineNumberDisplay"
+						  MinWidth="50"
+						  Margin="0"
+						  Visibility="{Binding ShowLineNumbers, Converter={StaticResource visibilityConverter}}"
+						  ItemsSource="{Binding Lines, Converter={StaticResource lineCountConverter}}"
+						  VirtualizingPanel.ScrollUnit="Pixel">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<VirtualizingStackPanel IsItemsHost="True"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.Template>
+					<ControlTemplate TargetType="ItemsControl">
+						<Border>
+							<controls:SmoothScrollviewer x:Name="LineNumbersScrollViewer"
+														 VerticalScrollBarVisibility="Disabled"
+														 CanContentScroll="True"
+														 ScrollChanged="LineNumbersScroll_Event">
+								<ItemsPresenter/>
+							</controls:SmoothScrollviewer>
+						</Border>
+					</ControlTemplate>
+				</ItemsControl.Template>
+			</ItemsControl>
+			<GridSplitter Grid.Column="1"
+						  ResizeDirection="Columns"
+						  ResizeBehavior="PreviousAndNext"
+						  Visibility="{Binding ShowLineNumbers, Converter={StaticResource visibilityConverter}}">
+				<GridSplitter.Template>
+					<ControlTemplate>
+						<Border Background="Transparent" Width="6" Margin="3 0">
+							<Border Width="1"
+								Background="#707070"/>
+						</Border>
+					</ControlTemplate>
+				</GridSplitter.Template>
+			</GridSplitter>
+			<ItemsControl x:Name="TextDisplay"
+						  ItemsSource="{Binding Lines}"
+						  Grid.Column="2"
+						  Background="Transparent"
+						  Cursor="IBeam"
+						  VirtualizingPanel.ScrollUnit="Pixel">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<VirtualizingStackPanel IsItemsHost="True"/>
@@ -29,15 +76,20 @@
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid>
-							<TextBlock Margin="0" x:Name="RenderText" Text="{Binding Text}" Focusable="False" TextEffects="{Binding Text, Converter={StaticResource tabConverter}}"/>
+							<TextBlock x:Name="RenderText"
+									   Margin="0"
+									   Text="{Binding Text}"
+									   Focusable="False"
+									   TextEffects="{Binding Text, Converter={StaticResource tabConverter}}"/>
 						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 				<!-- Override ScrollViewer to provide smooth scrolling. -->
 				<ItemsControl.Template>
 					<ControlTemplate TargetType="ItemsControl">
-						<Border>
-							<controls:SmoothScrollviewer CanContentScroll="True">
+						<Border Margin="-1 0 0 0">
+							<controls:SmoothScrollviewer CanContentScroll="True"
+														 ScrollChanged="TextboxSyncScroll_Event">
 								<ItemsPresenter/>
 							</controls:SmoothScrollviewer>
 						</Border>

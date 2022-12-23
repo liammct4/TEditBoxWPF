@@ -15,8 +15,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TEditBoxWPF.Controls;
 using TEditBoxWPF.Converters;
 using TEditBoxWPF.LineStructure;
+using TEditBoxWPF.Utilities;
 
 namespace TEditBoxWPF
 {
@@ -34,6 +36,7 @@ namespace TEditBoxWPF
 					.ToList();
 			}
 		}
+
 		public List<TLine> Lines
 		{
 			get => _lines;
@@ -44,6 +47,21 @@ namespace TEditBoxWPF
 			}
 		}
 		internal List<TLine> _lines;
+
+		/// <summary>
+		/// Determines if the text line numbers are shown.
+		/// </summary>
+		public bool ShowLineNumbers
+		{
+			get => _showLineNumbers;
+			set
+			{
+				_showLineNumbers = value;
+				OnPropertyChanged(nameof(ShowLineNumbers));
+			}
+		}
+		private bool _showLineNumbers = false;
+
 		public new FontFamily FontFamily
 		{
 			get => base.FontFamily;
@@ -53,6 +71,7 @@ namespace TEditBoxWPF
 				measurer.MeasuringOptions.FontFamily = value.Source;
 			}
 		}
+
 		public new double FontSize
 		{
 			get => base.FontSize;
@@ -63,12 +82,17 @@ namespace TEditBoxWPF
 			}
 		}
 		internal readonly TextMeasurer measurer = new();
+		private ScrollViewer TextDisplayScrollViewer;
+		private ScrollViewer LineNumbersScrollViewer;
 
 		public TEditBox()
 		{
 			InitializeComponent();
 			TextTabWidthConverter converter = (TextTabWidthConverter)Resources["tabConverter"];
 			converter.parent = this;
+
+			TextDisplayScrollViewer = TextDisplay.GetDescendantByType<SmoothScrollviewer>();
+			LineNumbersScrollViewer = LineNumberDisplay.GetDescendantByType<SmoothScrollviewer>();
 
 			Loaded += TEditBox_Loaded;
 		}
@@ -83,6 +107,17 @@ namespace TEditBoxWPF
 
 			measurer.MeasuringOptions = options;
 		}
+
+		/// <summary>
+		/// Fired when the text box has been scrolled. Syncs the textbox scroll to the line number scroll.
+		/// </summary>
+		private void TextboxSyncScroll_Event(object sender, ScrollChangedEventArgs e) => LineNumbersScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+
+		/// <summary>
+		/// Fired when the line number box has been scrolled using the mouse wheel.
+		/// Syncs the scroll from the line number box to the textbox.
+		/// </summary>
+		private void LineNumbersScroll_Event(object sender, ScrollChangedEventArgs e) => TextDisplayScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
 
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;
