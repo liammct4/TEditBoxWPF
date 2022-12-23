@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,6 +40,24 @@ namespace TextBoxTester
 		private void LoadTabMeasureText_Event(object sender, RoutedEventArgs e)
 		{
 			textBox.Text = TestData.TAB_MEASURE_TEXT;
+		}
+
+		private void LoadFileButtonClick_Event(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog dialog = new()
+			{
+				Title = "Open text file",
+				Multiselect = false,
+				CheckFileExists = true
+			};
+
+			if (dialog.ShowDialog() is true)
+			{
+				using FileStream fs = File.OpenRead(dialog.FileName);
+				using StreamReader reader = new(fs);
+
+				textBox.Text = reader.ReadToEnd();
+			}
 		}
 	}
 }

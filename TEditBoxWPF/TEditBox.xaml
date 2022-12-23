@@ -27,7 +27,7 @@
 			</Grid.ColumnDefinitions>
 			<ItemsControl x:Name="LineNumberDisplay"
 						  MinWidth="50"
-						  Margin="0"
+						  Margin="0 0 0 17"
 						  Visibility="{Binding ShowLineNumbers, Converter={StaticResource visibilityConverter}}"
 						  ItemsSource="{Binding Lines, Converter={StaticResource lineCountConverter}}"
 						  VirtualizingPanel.ScrollUnit="Pixel">
@@ -89,6 +89,7 @@
 					<ControlTemplate TargetType="ItemsControl">
 						<Border Margin="-1 0 0 0">
 							<controls:SmoothScrollviewer CanContentScroll="True"
+														 HorizontalScrollBarVisibility="Visible"
 														 ScrollChanged="TextboxSyncScroll_Event">
 								<ItemsPresenter/>
 							</controls:SmoothScrollviewer>

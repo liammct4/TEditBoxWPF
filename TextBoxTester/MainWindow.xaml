@@ -23,6 +23,7 @@
 			<Button Content="Load Sample Text" Click="LoadSampleText_Event"/>
 			<Button Content="Load Long Sample Text" Click="LoadLongSampleText_Event"/>
 			<Button Content="Load Tab Measure Text" Click="LoadTabMeasureText_Event"/>
+			<Button Content="Load File" Click="LoadFileButtonClick_Event"/>
 		</StackPanel>
 		<text:TEditBox x:Name="textBox" FontFamily="Consolas" FontSize="15" Grid.Row="2"/>
 	</Grid>
