@@ -1,6 +1,7 @@
 using CustomTextBoxComponent.Textbox.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -19,25 +20,27 @@ using TEditBoxWPF.LineStructure;
 
 namespace TEditBoxWPF
 {
-	public partial class TEditBox : UserControl
+	public partial class TEditBox : UserControl, INotifyPropertyChanged
 	{
 		public string Text
 		{
-			get => _text;
+			get => string.Join('\n', Lines.Select(x => x.Text));
 			set
 			{
-				_text = value;
-				Lines = _text.Replace(Environment.NewLine, "\n").Split("\n").Select(x => new TLine(x)).ToList();
+				Lines = value
+					.Replace(Environment.NewLine, "\n")
+					.Split("\n")
+					.Select(x => new TLine(x))
+					.ToList();
 			}
 		}
-		private string _text;
-		internal List<TLine> Lines
+		public List<TLine> Lines
 		{
 			get => _lines;
 			set
 			{
 				_lines = value;
-				TextDisplay.ItemsSource = value;
+				OnPropertyChanged(nameof(Lines));
 			}
 		}
 		internal List<TLine> _lines;
@@ -59,7 +62,7 @@ namespace TEditBoxWPF
 				measurer.MeasuringOptions.FontSize = value;
 			}
 		}
-		internal readonly TextMeasurer measurer = new TextMeasurer();
+		internal readonly TextMeasurer measurer = new();
 
 		public TEditBox()
 		{
@@ -80,5 +83,14 @@ namespace TEditBoxWPF
 
 			measurer.MeasuringOptions = options;
 		}
+
+		#region Property Changed
+		public event PropertyChangedEventHandler? PropertyChanged;
+		
+		public void OnPropertyChanged(string property)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+		}
+		#endregion
 	}
 }

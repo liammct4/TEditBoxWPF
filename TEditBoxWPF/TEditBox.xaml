@@ -7,7 +7,8 @@
 			 xmlns:convert="clr-namespace:TEditBoxWPF.Converters"
 			 xmlns:controls="clr-namespace:TEditBoxWPF.Controls"
 			 mc:Ignorable="d" 
-			 d:DesignHeight="450" d:DesignWidth="800">
+			 d:DesignHeight="450" d:DesignWidth="800"
+			 DataContext="{Binding RelativeSource={RelativeSource Self}}">
 	<UserControl.Resources>
 		<convert:TextTabWidthConverter x:Name="tabConverter" x:Key="tabConverter"/>
 	</UserControl.Resources>
@@ -19,7 +20,7 @@
 			</Grid.ColumnDefinitions>
 			<!-- TODO: Import LineNumberDisplay code. -->
 			<ListBox MinWidth="20" Margin="0" x:Name="LineNumberDisplay"/>
-			<ItemsControl x:Name="TextDisplay" Grid.Column="1" Background="Transparent" Cursor="IBeam" VirtualizingPanel.ScrollUnit="Pixel">
+			<ItemsControl x:Name="TextDisplay" ItemsSource="{Binding Lines}" Grid.Column="1" Background="Transparent" Cursor="IBeam" VirtualizingPanel.ScrollUnit="Pixel">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<VirtualizingStackPanel IsItemsHost="True"/>
