@@ -1,6 +1,7 @@
 using CustomTextBoxComponent.Textbox.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -22,22 +23,30 @@ using TEditBoxWPF.Utilities;
 
 namespace TEditBoxWPF
 {
+	/// <summary>
+	/// A text control allowing plaintext document and file editing.
+	/// </summary>
 	public partial class TEditBox : UserControl, INotifyPropertyChanged
 	{
+		/// <summary>
+		/// The text content loaded into this text box. Can be unperformant depending on text size.
+		/// </summary>
 		public string Text
 		{
 			get => string.Join('\n', Lines.Select(x => x.Text));
 			set
 			{
-				Lines = value
+				Lines = new ObservableCollection<TLine>(value
 					.Replace(Environment.NewLine, "\n")
 					.Split("\n")
-					.Select(x => new TLine(x))
-					.ToList();
+					.Select(x => new TLine(x)));
 			}
 		}
 
-		public List<TLine> Lines
+		/// <summary>
+		/// A manually adjustable collection of lines which represent the text.
+		/// </summary>
+		public ObservableCollection<TLine> Lines
 		{
 			get => _lines;
 			set
@@ -46,7 +55,7 @@ namespace TEditBoxWPF
 				OnPropertyChanged(nameof(Lines));
 			}
 		}
-		internal List<TLine> _lines;
+		internal ObservableCollection<TLine> _lines;
 
 		/// <summary>
 		/// Determines if the text line numbers are shown.
@@ -60,8 +69,11 @@ namespace TEditBoxWPF
 				OnPropertyChanged(nameof(ShowLineNumbers));
 			}
 		}
-		private bool _showLineNumbers = false;
+		private bool _showLineNumbers = true;
 
+		/// <summary>
+		/// The font family which will be used to render the text.
+		/// </summary>
 		public new FontFamily FontFamily
 		{
 			get => base.FontFamily;
@@ -72,6 +84,9 @@ namespace TEditBoxWPF
 			}
 		}
 
+		/// <summary>
+		/// The em size of the text in the text box.
+		/// </summary>
 		public new double FontSize
 		{
 			get => base.FontSize;
@@ -97,6 +112,12 @@ namespace TEditBoxWPF
 			Loaded += TEditBox_Loaded;
 		}
 
+		/// <summary>
+		/// Loads the text measurer <see cref="measurer"/> with the specified font settings.
+		/// 
+		/// The font settings specified on the control (e.g. &lt;text:TEditBox FontFamily="Consolas" FontSize="15"/&gt;)
+		/// are only accessable after the control has been loaded.
+		/// </summary>
 		private void TEditBox_Loaded(object sender, RoutedEventArgs e)
 		{
 			TextMeasureOptions options = new TextMeasureOptions()
@@ -122,7 +143,7 @@ namespace TEditBoxWPF
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;
 		
-		public void OnPropertyChanged(string property)
+		private void OnPropertyChanged(string property)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
 		}
