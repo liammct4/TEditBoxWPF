@@ -39,7 +39,7 @@ namespace TEditBoxWPF
 				Lines = new ObservableCollection<TLine>(value
 					.Replace(Environment.NewLine, "\n")
 					.Split("\n")
-					.Select(x => new TLine(x)));
+					.Select(x => new TLine(this, x)));
 			}
 		}
 
