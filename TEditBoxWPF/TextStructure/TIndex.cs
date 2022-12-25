@@ -27,6 +27,39 @@ namespace TEditBoxWPF.TextStructure
 			Character = character;
 		}
 
+		/// <summary>
+		/// Offsets this index by a certain amount. This does not
+		/// modify the original index.
+		/// </summary>
+		/// <param name="offsetIndex">The index to offset this index by.</param>
+		/// <returns>A new offset index.</returns>
+		public TIndex Offset(TIndex offsetIndex) => Offset(offsetIndex.Line, offsetIndex.Character);
+
+		/// <summary>
+		/// Offsets this index by a certain amount. This does not
+		/// modify the original index.
+		/// </summary>
+		/// <param name="lineOffset">The number to offset the <see cref="Line"/> of this index by.</param>
+		/// <param name="characterOffset">The number to offset the <see cref="Character"/> of this index by.</param>
+		/// <returns>A new offset index.</returns>
+		public TIndex Offset(int lineOffset, int characterOffset) => new(Line + lineOffset, Character + characterOffset);
+
+		/// <summary>
+		/// Offsets this index line by the value provided.
+		/// This does not modify the original index.
+		/// </summary>
+		/// <param name="lineOffset">The number to offset the <see cref="Line"/> by.</param>
+		/// <returns>A new offset index.</returns>
+		public TIndex OffsetLine(int lineOffset) => Offset(lineOffset, 0);
+
+		/// <summary>
+		/// Offsets this index character by the value provided.
+		/// This does not modify the original index.
+		/// </summary>
+		/// <param name="characterOffset">The number to offset the <see cref="Character"/> by.</param>
+		/// <returns>A new offset index.</returns>
+		public TIndex OffsetCharacter(int characterOffset) => Offset(0, characterOffset);
+
 		public static bool operator ==(TIndex a, TIndex b) => a.Equals(b);
 		public static bool operator !=(TIndex a, TIndex b) => !a.Equals(b);
 		public static bool operator >(TIndex a, TIndex b)

@@ -1,28 +1,136 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using TEditBoxWPF.LineStructure;
+using TEditBoxWPF.TextStructure;
+using TEditBoxWPF.Utilities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace TEditBoxWPF.Objects
 {
 	/// <summary>
 	/// Represents a non-text object such as a caret within a <see cref="TEditBox"/>.
 	/// 
-	/// Handles virtualisation rendering and safe <see cref="Visual"/>
-	/// placement within a virtualised itemcontrol.
+	/// Handles virtualisation rendering and safe <see cref="Control"/>
+	/// placement within a virtualised itemcontrol.<br/><br/>
+	/// 
+	/// <see cref="ItemContainerGenerator"/>'s which use virtualised panels dynamically
+	/// generate and destroy rendered items based on whether they are visible
+	/// to the user.<br/><br/>
+	/// 
+	/// When rendered items are destroyed, any changes made to items
+	/// are also destroyed, such as manually added objects. <br/><br/>
+	/// 
+	/// This class will safely regenerate objects within a virtualised panel.
 	/// </summary>
-	internal abstract class VirtualisedTextObject<T> where T: Visual
+	internal class VirtualisedTextObject<T> where T: FrameworkElement
 	{
-		public T VirtualisedObject { get; }
-		public TLine Line { get; set; }
+		/// <summary>
+		/// The parent of this text object.
+		/// </summary>
+		public TEditBox Parent { get; }
 
-		public VirtualisedTextObject(TLine line, T control)
+		/// <summary>
+		/// The control to render. Offset the control using hte
+		/// </summary>
+		public T VirtualisedObject { get; }
+
+		/// <summary>
+		/// The line object which this control is placed in.
+		/// </summary>
+		public TLine Line
 		{
+			get => line;
+			set
+			{
+				if (value.Parent != Parent)
+				{
+					throw new InvalidOperationException("The line provided is not contained within the same textbox.");
+				}
+
+				line = value;
+			}
+		}
+		private TLine line;
+
+		/// <summary>
+		/// The line and character position of the control in the textbox.
+		/// </summary>
+		public TIndex Position
+		{
+			// The line position is linked to Line, while the character is arbitrary. 
+			get => new(Line.Position, characterPos);
+			set
+			{
+				Line = Parent.Lines[value.Line];
+				characterPos = value.Character;
+			}
+		}
+
+		/// <summary>
+		/// The virtualised panel which the control belongs to.
+		/// </summary>
+		public ItemsControl VirtualisationPanel { get; }
+		private Grid previousBox;
+		private int characterPos;
+
+		public VirtualisedTextObject(TEditBox parent, TLine line, ItemsControl virtualisationPanel, T control)
+		{
+			Parent = parent;
 			VirtualisedObject = control;
+			VirtualisationPanel = virtualisationPanel;
 			Line = line;
+
+			virtualisationPanel.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
+		}
+
+		/// <summary>
+		/// Informs the object to update the placement of the virtualised object.
+		/// </summary>
+		private void ItemContainerGenerator_StatusChanged(object? sender, EventArgs e)
+		{
+			if (VirtualisationPanel.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
+			{
+				VirtualisedObject.HorizontalAlignment = HorizontalAlignment.Left;
+				Place();
+			}
+		}
+
+		/// <summary>
+		/// Attempts to place the control in the line. If the line is not
+		/// generated, the object will not be placed. This method is automatically
+		/// linked with the items panel.
+		/// </summary>
+		public void Place()
+		{
+			if (Line.Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(Line) is not ContentPresenter container)
+			{
+				return;
+			}
+
+			// The textblock which renders the text is wrapped around a Grid, the object is placed in the grid.
+			Grid box = container.GetDescendantByType<Grid>();
+
+			// If the user can already see the box.
+			if (!box.Children.Contains(VirtualisedObject))
+			{
+				// The rectangle has to be disconnected before 
+				if (previousBox != null && previousBox.Children.Contains(VirtualisedObject))
+				{
+					previousBox.Children.Remove(VirtualisedObject);
+				}
+
+				box.Children.Add(VirtualisedObject);
+				previousBox = box;
+			}
 		}
 	}
 }
