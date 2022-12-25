@@ -71,6 +71,17 @@ namespace TEditBoxWPF
 		}
 		private bool _showLineNumbers = true;
 
+		public int TabSize
+		{
+			get => _tabSize;
+			set
+			{
+				_tabSize = value;
+				measurer.MeasuringOptions.TabSize = value;
+			}
+		}
+		private int _tabSize = 8;
+
 		/// <summary>
 		/// The font family which will be used to render the text.
 		/// </summary>
@@ -123,7 +134,8 @@ namespace TEditBoxWPF
 			TextMeasureOptions options = new TextMeasureOptions()
 			{
 				FontFamily = FontFamily.Source,
-				FontSize = FontSize
+				FontSize = FontSize,
+				TabSize = TabSize
 			};
 
 			measurer.MeasuringOptions = options;

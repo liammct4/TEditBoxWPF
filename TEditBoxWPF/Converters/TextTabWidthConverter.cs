@@ -1,6 +1,7 @@
 ﻿using CustomTextBoxComponent.Textbox.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection.Emit;
@@ -29,8 +30,7 @@ namespace TEditBoxWPF.Converters
 			// Contains a collection of text effects which changes the tab spacing from 8 to 4.
 			TextEffectCollection collection = new();
 
-			const int TAB_WIDTH = 4;
-			string tabCharacterText = string.Join("", Enumerable.Repeat(' ', TAB_WIDTH));
+			int tabWidth = parent.measurer.MeasuringOptions.TabSize;
 
 			// The tab positions are needed in order to select a certain segment of
 			// text which is between tab characters. E.g.
@@ -52,22 +52,22 @@ namespace TEditBoxWPF.Converters
 
 				// Negate horizontal position of text after tabs, so the accurate 4 tab width can be calculated from scratch.
 				string currentTextSegment = text[0..(tabPosition + 1)];
-				double total = -parent.measurer.MeasureTextSize(currentTextSegment).Width;
+				double total = -parent.measurer.MeasureTextSize(currentTextSegment, false).Width;
 
 				// Adjust the segment to the correct position with the adjusted tab width..
-				total += parent.measurer.MeasureTextSize(currentTextSegment.Replace("\t", tabCharacterText)).Width;
+				total += parent.measurer.MeasureTextSize(currentTextSegment, true).Width;
 
 				// Round up to the next tab segment.
-				double b = Math.Ceiling((double)tabPosition / TAB_WIDTH) * TAB_WIDTH;
+				double b = Math.Ceiling((double)tabPosition / tabWidth) * tabWidth;
 				var e = (((int)b) - (tabPosition)) + i;
 
 				if (e == 0)
 				{
-					e = TAB_WIDTH;
+					e = tabWidth;
 				}
 
-				string remainingTabWidthText = new string(Enumerable.Repeat(' ', Math.Max(TAB_WIDTH - e, 0)).ToArray());
-				total -= parent.measurer.MeasureTextSize(remainingTabWidthText).Width;
+				string remainingTabWidthText = new string(Enumerable.Repeat(' ', Math.Max(tabWidth - e, 0)).ToArray());
+				total -= parent.measurer.MeasureTextSize(remainingTabWidthText, false).Width;
 
 				// Only affect the text from the tab character to the next tab character
 				// or until the end of the text if it's the last character.

@@ -17,7 +17,8 @@ namespace CustomTextBoxComponent.Textbox.Utilities
 		public static TextMeasureOptions Default => new()
 		{
 			FontFamily = "Segoe UI",
-			FontSize = 12
+			FontSize = 12,
+			TabSize = 8
 		};
 
 		/// <summary>
@@ -28,5 +29,9 @@ namespace CustomTextBoxComponent.Textbox.Utilities
 		/// The size of the font which will be used to measure text.
 		/// </summary>
 		public double FontSize { get; set; }
+		/// <summary>
+		/// The space-based width of a tab character.
+		/// </summary>
+		public int TabSize { get; set; }
 	}
 }

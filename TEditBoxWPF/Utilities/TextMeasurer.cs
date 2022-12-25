@@ -59,8 +59,14 @@ namespace CustomTextBoxComponent.Textbox.Utilities
 		/// </summary>
 		/// <param name="text">The text to measure.</param>
 		/// <returns>The size of the text in pixels.</returns>
-		public Size MeasureTextSize(string text)
+		public Size MeasureTextSize(string text, bool useCustomFormatting)
 		{
+			if (useCustomFormatting)
+			{
+				string tab = new(Enumerable.Repeat(' ', MeasuringOptions.TabSize).ToArray());
+				text = text.Replace("\t", tab);
+			}
+
 			measuringTextBlock.Text = text;
 
 			measuringTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
