@@ -176,6 +176,12 @@ namespace TEditBoxWPF
 				case Key.Right:
 					MainCaret.MoveChar(1);
 					break;
+				case Key.Up:
+					MainCaret.MoveLine(-1);
+					break;
+				case Key.Down:
+					MainCaret.MoveLine(1);
+					break;
 			}
 		}
 

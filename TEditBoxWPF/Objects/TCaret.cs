@@ -41,6 +41,10 @@ namespace TEditBoxWPF.Objects
 				control: line);
 		}
 
+		/// <summary>
+		/// Moves the caret by the specified character offset, the caret can move on to the next or previous lines.
+		/// </summary>
+		/// <param name="charOffset">The number of characters to offset the caret by.</param>
 		public void MoveChar(int charOffset)
 		{
 			TLine currentLine = CaretLine.Line;
@@ -82,9 +86,26 @@ namespace TEditBoxWPF.Objects
 			Position = newPosition;
 		}
 
-		public void MoveLine(int line)
+		/// <summary>
+		/// Moves the caret by the specified line offset.
+		/// </summary>
+		/// <param name="charOffset">The number of lines to offset the caret by.</param>
+		public void MoveLine(int lineOffset)
 		{
+			TIndex currentPosition = CaretLine.Position;
 
+			currentPosition = currentPosition.OffsetLine(lineOffset);
+
+			if (currentPosition.Line < 0 || currentPosition.Line >= Parent.Lines.Count)
+			{
+				return;
+			}
+
+			string nextLineText = Parent.Lines[currentPosition.Line].Text;
+
+			currentPosition.Character = Math.Min(nextLineText.Length, currentPosition.Character);
+
+			Position = currentPosition;
 		}
 	}
 }
