@@ -30,7 +30,7 @@ namespace TEditBoxWPF
 	public partial class TEditBox : UserControl, INotifyPropertyChanged
 	{
 		/// <summary>
-		/// The text content loaded into this text box. Can be unperformant depending on text size.
+		/// The text content loaded into this text box.
 		/// </summary>
 		public string Text
 		{
@@ -109,6 +109,9 @@ namespace TEditBoxWPF
 				measurer.MeasuringOptions.FontSize = value;
 			}
 		}
+
+		public TCaret MainCaret { get; }
+
 		internal readonly TextMeasurer measurer = new();
 		private ScrollViewer TextDisplayScrollViewer; 
 		private ScrollViewer LineNumbersScrollViewer;
@@ -123,6 +126,8 @@ namespace TEditBoxWPF
 
 			TextDisplayScrollViewer = TextDisplay.GetDescendantByType<SmoothScrollviewer>();
 			LineNumbersScrollViewer = LineNumberDisplay.GetDescendantByType<SmoothScrollviewer>();
+
+			MainCaret = new TCaret(this);
 
 			Loaded += TEditBox_Loaded;
 		}
@@ -143,6 +148,8 @@ namespace TEditBoxWPF
 			};
 
 			measurer.MeasuringOptions = options;
+
+			MainCaret.CaretLine.IsPlaced = true;
 		}
 
 		/// <summary>
@@ -156,15 +163,26 @@ namespace TEditBoxWPF
 		/// </summary>
 		private void LineNumbersScroll_Event(object sender, ScrollChangedEventArgs e) => TextDisplayScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
 
-		public VirtualisedTextObject<Rectangle> VirtualisedTestObject()
+		/// <summary>
+		/// Occurs whenever a key has been pressed inside the control.
+		/// </summary>
+		private void ControlInput_Event(object sender, KeyEventArgs e)
 		{
-			Rectangle rect = new()
+			switch (e.Key)
 			{
-				Width = 2,
-				Fill = new SolidColorBrush(Colors.Red)
-			};
-			return new VirtualisedTextObject<Rectangle>(this, Lines[0], TextDisplay, rect);
+				case Key.Left:
+					MainCaret.MoveChar(-1);
+					break;
+				case Key.Right:
+					MainCaret.MoveChar(1);
+					break;
+			}
 		}
+
+		/// <summary>
+		/// Stops the scrollviewer from adjusting when the arrow keys are pressed.
+		/// </summary>
+		private void TextDisplay_PreviewKeyDown(object sender, KeyEventArgs e) => e.Handled = true;
 
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;

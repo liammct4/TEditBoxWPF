@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using TEditBoxWPF.LineStructure;
+using TEditBoxWPF.TextStructure;
 
 namespace TEditBoxWPF.Objects
 {
@@ -10,7 +14,77 @@ namespace TEditBoxWPF.Objects
 	/// Represents a caret inside a <see cref="TEditBox"/> which responds
 	/// to user input.
 	/// </summary>
-	internal class TCaret
+	public class TCaret
 	{
+		public TEditBox Parent { get; }
+		internal VirtualisedTextObject<Rectangle> CaretLine;
+
+		public TIndex Position
+		{
+			get => CaretLine.Position;
+			set => CaretLine.Position = value;
+		}
+
+		public TCaret(TEditBox parent)
+		{
+			Parent = parent;
+
+			Rectangle line = new()
+			{
+				Width = 1,
+				Fill = new SolidColorBrush(Colors.Black)
+			};
+			CaretLine = new VirtualisedTextObject<Rectangle>(
+				parent: parent,
+				line: parent.Lines.First(),
+				virtualisationPanel: parent.TextDisplay,
+				control: line);
+		}
+
+		public void MoveChar(int charOffset)
+		{
+			TLine currentLine = CaretLine.Line;
+			TIndex currentPosition = CaretLine.Position;
+			string text = currentLine.Text;
+
+			TIndex newPosition = currentPosition.OffsetCharacter(charOffset);
+
+			if (newPosition.Character < 0)
+			{
+				newPosition = newPosition.OffsetLine(-1);
+
+				if (newPosition.Line >= 0)
+				{
+					string previousLineText = Parent.Lines[newPosition.Line].Text;
+
+					newPosition.Character = previousLineText.Length;
+				}
+				else
+				{
+					newPosition.Line += 1;
+					newPosition.Character = 0;
+				}
+			}
+			else if (newPosition.Character > text.Length)
+			{
+				newPosition = newPosition.OffsetLine(1);
+
+				if (newPosition.Line <= Parent.Lines.Count)
+				{
+					newPosition.Character = 0;
+				}
+				else
+				{
+					newPosition.Line -= 1;
+				}
+			}
+
+			Position = newPosition;
+		}
+
+		public void MoveLine(int line)
+		{
+
+		}
 	}
 }

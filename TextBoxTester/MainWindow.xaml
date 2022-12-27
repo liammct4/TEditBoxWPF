@@ -6,7 +6,8 @@
 		xmlns:local="clr-namespace:TextBoxTester"
 		xmlns:text="clr-namespace:TEditBoxWPF;assembly=TEditBoxWPF"
 		mc:Ignorable="d"
-		Title="MainWindow" Height="450" Width="800">
+		Title="MainWindow" Height="450" Width="800"
+		WindowStartupLocation="CenterScreen">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -38,6 +39,7 @@
 				<Grid.Resources>
 					<Style TargetType="{x:Type TextBox}">
 						<Setter Property="Margin" Value="2"/>
+						<Setter Property="MinWidth" Value="40"/>
 					</Style>
 					<Style TargetType="{x:Type TextBlock}">
 						<Setter Property="VerticalAlignment" Value="Center"/>
@@ -55,12 +57,8 @@
 				<Button Content="Update"
 						Padding="4 0"
 						Margin="0 4"
+						Grid.ColumnSpan="2"
 						Click="UpdateButtonClick_Event"/>
-				<CheckBox Grid.Column="1" x:Name="UpdateCheckbox"
-						  Content="Is Object Placed"
-						  Grid.ColumnSpan="2"
-						  VerticalAlignment="Center"
-						  Click="IsShowedChange_Event"/>
 				<TextBlock Grid.Row="1" Text="Line Box"/>
 				<TextBlock Grid.Row="2" Text="Char Box"/>
 				<TextBox x:Name="LineBox"
@@ -73,6 +71,10 @@
 						 Grid.Row="2"/>
 			</Grid>
 		</StackPanel>
-		<text:TEditBox x:Name="textBox" FontFamily="Consolas" FontSize="15" TabSize="4" Grid.Row="2"/>
+		<text:TEditBox x:Name="textBox"
+					   Grid.Row="2"
+					   FontFamily="Fantasque Sans Mono"
+					   FontSize="15"
+					   TabSize="4"/>
 	</Grid>
 </Window>

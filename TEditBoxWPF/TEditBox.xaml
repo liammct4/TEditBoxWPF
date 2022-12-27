@@ -18,7 +18,8 @@
 	<Border BorderThickness="1"
 			Padding="4 0 0 0"
 			BorderBrush="#707070"
-			SnapsToDevicePixels="True">
+			SnapsToDevicePixels="True"
+			PreviewKeyDown="ControlInput_Event">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
@@ -67,7 +68,8 @@
 						  Grid.Column="2"
 						  Background="Transparent"
 						  Cursor="IBeam"
-						  VirtualizingPanel.ScrollUnit="Pixel">
+						  VirtualizingPanel.ScrollUnit="Pixel"
+						  PreviewKeyDown="TextDisplay_PreviewKeyDown">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<VirtualizingStackPanel IsItemsHost="True"/>

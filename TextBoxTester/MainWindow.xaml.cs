@@ -29,8 +29,6 @@ namespace TextBoxTester
 		public MainWindow()
 		{
 			InitializeComponent();
-
-			testObject = textBox.VirtualisedTestObject();
 		}
 
 		private void LoadSampleText_Event(object sender, RoutedEventArgs e)
@@ -66,14 +64,9 @@ namespace TextBoxTester
 			}
 		}
 
-		private void IsShowedChange_Event(object sender, RoutedEventArgs e)
-		{
-			testObject.IsPlaced = UpdateCheckbox.IsChecked.Value;
-		}
-
 		private void UpdateButtonClick_Event(object sender, RoutedEventArgs e)
 		{
-			testObject.Position = new TIndex(int.Parse(LineBox.Text), int.Parse(CharBox.Text));
+			textBox.MainCaret.Position = new TIndex(int.Parse(LineBox.Text), int.Parse(CharBox.Text));
 		}
 	}
 }

@@ -71,8 +71,8 @@ namespace TEditBoxWPF.Objects
 			get => new(Line.Position, characterPos);
 			set
 			{
-				Line = Parent.Lines[value.Line];
 				characterPos = value.Character;
+				Line = Parent.Lines[value.Line];
 			}
 		}
 
