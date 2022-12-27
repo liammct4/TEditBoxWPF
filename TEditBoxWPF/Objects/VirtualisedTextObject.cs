@@ -57,6 +57,7 @@ namespace TEditBoxWPF.Objects
 				}
 
 				line = value;
+				previousLine = value.Position;
 				Place();
 			}
 		}
@@ -101,6 +102,7 @@ namespace TEditBoxWPF.Objects
 		private bool _isPlaced;
 		private Grid previousBox;
 		private int characterPos;
+		private int previousLine;
 
 		public VirtualisedTextObject(TEditBox parent, TLine line, ItemsControl virtualisationPanel, T control)
 		{
@@ -110,6 +112,7 @@ namespace TEditBoxWPF.Objects
 			Line = line;
 
 			virtualisationPanel.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
+			virtualisationPanel.ItemContainerGenerator.ItemsChanged += ItemContainerGenerator_ItemsChanged;
 		}
 
 		/// <summary>
@@ -119,7 +122,18 @@ namespace TEditBoxWPF.Objects
 		{
 			if (VirtualisationPanel.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
 			{
-				VirtualisedObject.HorizontalAlignment = HorizontalAlignment.Left;
+				Place();
+			}
+		}
+
+		/// <summary>
+		/// Informs the object to reset the position of the caret to line 0, character 0.
+		/// </summary>
+		private void ItemContainerGenerator_ItemsChanged(object sender, ItemsChangedEventArgs e)
+		{
+			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+			{
+				Position = TIndex.Start;
 				Place();
 			}
 		}
@@ -142,6 +156,7 @@ namespace TEditBoxWPF.Objects
 			string marginWidth = Line.Text[0..Math.Max(0, characterPos)];
 			double marginFromCharacterPosition = Parent.measurer.MeasureTextSize(marginWidth, true).Width;
 
+			VirtualisedObject.HorizontalAlignment = HorizontalAlignment.Left;
 			VirtualisedObject.Margin = new Thickness(marginFromCharacterPosition, 0, 0, 0);
 
 			// If the user can already see the box.

@@ -12,6 +12,11 @@ namespace TEditBoxWPF.TextStructure
 	public struct TIndex
 	{
 		/// <summary>
+		/// Gets an index starting at line 0 and character 0.
+		/// </summary>
+		public static TIndex Start => new TIndex(0, 0);
+
+		/// <summary>
 		/// The line of this index.
 		/// </summary>
 		public int Line;
