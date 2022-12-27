@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TEditBoxWPF.Objects;
+using TEditBoxWPF.TextStructure;
 
 namespace TextBoxTester
 {
@@ -22,9 +24,13 @@ namespace TextBoxTester
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		private VirtualisedTextObject<Rectangle> testObject;
+
 		public MainWindow()
 		{
 			InitializeComponent();
+
+			testObject = textBox.VirtualisedTestObject();
 		}
 
 		private void LoadSampleText_Event(object sender, RoutedEventArgs e)
@@ -58,6 +64,16 @@ namespace TextBoxTester
 
 				textBox.Text = reader.ReadToEnd();
 			}
+		}
+
+		private void IsShowedChange_Event(object sender, RoutedEventArgs e)
+		{
+			testObject.IsPlaced = UpdateCheckbox.IsChecked.Value;
+		}
+
+		private void UpdateButtonClick_Event(object sender, RoutedEventArgs e)
+		{
+			testObject.Position = new TIndex(int.Parse(LineBox.Text), int.Parse(CharBox.Text));
 		}
 	}
 }

@@ -19,6 +19,7 @@ using System.Windows.Shapes;
 using TEditBoxWPF.Controls;
 using TEditBoxWPF.Converters;
 using TEditBoxWPF.LineStructure;
+using TEditBoxWPF.Objects;
 using TEditBoxWPF.Utilities;
 
 namespace TEditBoxWPF
@@ -81,6 +82,7 @@ namespace TEditBoxWPF
 			}
 		}
 		private int _tabSize = 8;
+		private VirtualisedTextObject<Rectangle> TestObject;
 
 		/// <summary>
 		/// The font family which will be used to render the text.
@@ -108,11 +110,13 @@ namespace TEditBoxWPF
 			}
 		}
 		internal readonly TextMeasurer measurer = new();
-		private ScrollViewer TextDisplayScrollViewer;
+		private ScrollViewer TextDisplayScrollViewer; 
 		private ScrollViewer LineNumbersScrollViewer;
 
 		public TEditBox()
 		{
+			_lines = new ObservableCollection<TLine>() { new TLine(this, "") };
+
 			InitializeComponent();
 			TextTabWidthConverter converter = (TextTabWidthConverter)Resources["tabConverter"];
 			converter.parent = this;
@@ -151,6 +155,16 @@ namespace TEditBoxWPF
 		/// Syncs the scroll from the line number box to the textbox.
 		/// </summary>
 		private void LineNumbersScroll_Event(object sender, ScrollChangedEventArgs e) => TextDisplayScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+
+		public VirtualisedTextObject<Rectangle> VirtualisedTestObject()
+		{
+			Rectangle rect = new()
+			{
+				Width = 2,
+				Fill = new SolidColorBrush(Colors.Red)
+			};
+			return new VirtualisedTextObject<Rectangle>(this, Lines[0], TextDisplay, rect);
+		}
 
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;

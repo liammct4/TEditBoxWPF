@@ -31,7 +31,7 @@ namespace TEditBoxWPF.Objects
 	/// 
 	/// This class will safely regenerate objects within a virtualised panel.
 	/// </summary>
-	internal class VirtualisedTextObject<T> where T: FrameworkElement
+	public class VirtualisedTextObject<T> where T: FrameworkElement
 	{
 		/// <summary>
 		/// The parent of this text object.
@@ -57,6 +57,7 @@ namespace TEditBoxWPF.Objects
 				}
 
 				line = value;
+				Place();
 			}
 		}
 		private TLine line;
@@ -79,6 +80,25 @@ namespace TEditBoxWPF.Objects
 		/// The virtualised panel which the control belongs to.
 		/// </summary>
 		public ItemsControl VirtualisationPanel { get; }
+
+		public bool IsPlaced
+		{
+			get => _isPlaced;
+			set
+			{
+				_isPlaced = value;
+
+				if (!value && previousBox != null)
+				{
+					previousBox.Children.Remove(VirtualisedObject);
+				}
+				else
+				{
+					Place();
+				}
+			}
+		}
+		private bool _isPlaced;
 		private Grid previousBox;
 		private int characterPos;
 
@@ -111,13 +131,18 @@ namespace TEditBoxWPF.Objects
 		/// </summary>
 		public void Place()
 		{
-			if (Line.Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(Line) is not ContentPresenter container)
+			if (Line.Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(Line) is not ContentPresenter container || !IsPlaced)
 			{
 				return;
 			}
 
 			// The textblock which renders the text is wrapped around a Grid, the object is placed in the grid.
 			Grid box = container.GetDescendantByType<Grid>();
+
+			string marginWidth = Line.Text[0..Math.Max(0, characterPos)];
+			double marginFromCharacterPosition = Parent.measurer.MeasureTextSize(marginWidth, true).Width;
+
+			VirtualisedObject.Margin = new Thickness(marginFromCharacterPosition, 0, 0, 0);
 
 			// If the user can already see the box.
 			if (!box.Children.Contains(VirtualisedObject))
@@ -129,6 +154,7 @@ namespace TEditBoxWPF.Objects
 				}
 
 				box.Children.Add(VirtualisedObject);
+
 				previousBox = box;
 			}
 		}
