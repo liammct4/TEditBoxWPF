@@ -37,6 +37,9 @@
 						<VirtualizingStackPanel IsItemsHost="True"/>
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
+				<ItemsControl.FocusVisualStyle>
+					<Style/>
+				</ItemsControl.FocusVisualStyle>
 				<ItemsControl.Template>
 					<ControlTemplate TargetType="ItemsControl">
 						<Border>
@@ -75,6 +78,9 @@
 						<VirtualizingStackPanel IsItemsHost="True"/>
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
+				<ItemsControl.FocusVisualStyle>
+					<Style/>
+				</ItemsControl.FocusVisualStyle>
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid>

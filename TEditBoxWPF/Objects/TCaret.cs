@@ -73,13 +73,20 @@ namespace TEditBoxWPF.Objects
 			{
 				newPosition = newPosition.OffsetLine(1);
 
-				if (newPosition.Line <= Parent.Lines.Count)
+				if (newPosition.Line >= Parent.Lines.Count)
+				{
+					return;
+				}
+
+				string nextLineText = Parent.Lines[newPosition.Line].Text;
+
+				if (newPosition.Character <= nextLineText.Length)
 				{
 					newPosition.Character = 0;
 				}
 				else
 				{
-					newPosition.Line -= 1;
+					return;
 				}
 			}
 
