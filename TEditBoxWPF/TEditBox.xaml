@@ -22,12 +22,12 @@
 			PreviewKeyDown="ControlInput_Event">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="Auto"
+								  MinWidth="40"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="*"/>
 			</Grid.ColumnDefinitions>
 			<ItemsControl x:Name="LineNumberDisplay"
-						  MinWidth="50"
 						  Margin="0 0 0 17"
 						  Visibility="{Binding ShowLineNumbers, Converter={StaticResource visibilityConverter}}"
 						  ItemsSource="{Binding Lines, Converter={StaticResource lineCountConverter}}"
@@ -40,6 +40,11 @@
 				<ItemsControl.FocusVisualStyle>
 					<Style/>
 				</ItemsControl.FocusVisualStyle>
+				<ItemsControl.ItemContainerStyle>
+					<Style TargetType="{x:Type ContentPresenter}">
+						<Setter Property="HorizontalAlignment" Value="{Binding LineNumberAlignment, RelativeSource={RelativeSource AncestorType=local:TEditBox}}"/>
+					</Style>
+				</ItemsControl.ItemContainerStyle>
 				<ItemsControl.Template>
 					<ControlTemplate TargetType="ItemsControl">
 						<Border>

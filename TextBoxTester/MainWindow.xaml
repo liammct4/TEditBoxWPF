@@ -75,6 +75,7 @@
 					   Grid.Row="2"
 					   FontFamily="Fantasque Sans Mono"
 					   FontSize="15"
-					   TabSize="4"/>
+					   TabSize="4"
+					   LineNumberAlignment="Left"/>
 	</Grid>
 </Window>

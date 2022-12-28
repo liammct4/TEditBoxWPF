@@ -110,6 +110,20 @@ namespace TEditBoxWPF
 			}
 		}
 
+		/// <summary>
+		/// Determines how the line numbers will be aligned relative to the line numbers side bar.
+		/// </summary>
+		public HorizontalAlignment LineNumberAlignment
+		{
+			get => _lineNumberAlignment;
+			set
+			{
+				_lineNumberAlignment = value;
+				OnPropertyChanged(nameof(ShowLineNumbers));
+			}
+		}
+		private HorizontalAlignment _lineNumberAlignment;
+
 		public TCaret MainCaret { get; }
 
 		internal readonly TextMeasurer measurer = new();
