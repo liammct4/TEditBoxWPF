@@ -102,14 +102,7 @@ namespace TEditBoxWPF.Objects
 
 				string nextLineText = Parent.Lines[newPosition.Line].Text;
 
-				if (newPosition.Character <= nextLineText.Length)
-				{
-					newPosition.Character = 0;
-				}
-				else
-				{
-					return;
-				}
+				newPosition.Character = 0;
 			}
 
 			Position = newPosition;
