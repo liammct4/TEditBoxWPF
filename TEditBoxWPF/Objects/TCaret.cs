@@ -21,8 +21,14 @@ namespace TEditBoxWPF.Objects
 	/// </summary>
 	public class TCaret
 	{
+		/// <summary>
+		/// The text box this caret is contained in.
+		/// </summary>
 		public TEditBox Parent { get; }
 
+		/// <summary>
+		/// Gets or sets the line and character position of this caret. Index is 0 based.
+		/// </summary>
 		public TIndex Position
 		{
 			get => caretLine.Position;
@@ -31,14 +37,16 @@ namespace TEditBoxWPF.Objects
 				if (caretLine.Position != value)
 				{
 					caretLine.Position = value;
-					caretLine.VirtualisedObject.Visibility = Visibility.Visible;
+					caretLine.VirtualizedObject.Visibility = Visibility.Visible;
+
+					Parent.TextDisplay.ScrollIntoView(value.Line);
 
 					caretBlinkingTimer.Reset();
 				}
 			}
 		}
 
-		internal VirtualisedTextObject<Rectangle> caretLine;
+		internal VirtualizedTextObject<Rectangle> caretLine;
 		private Timer caretBlinkingTimer = new()
 		{
 			Interval = 700,
@@ -53,10 +61,10 @@ namespace TEditBoxWPF.Objects
 				Width = 2,
 				Fill = new SolidColorBrush(Colors.Black)
 			};
-			caretLine = new VirtualisedTextObject<Rectangle>(
+			caretLine = new VirtualizedTextObject<Rectangle>(
 				parent: parent,
 				line: parent.Lines.First(),
-				virtualisationPanel: parent.TextDisplay,
+				virtualizationPanel: parent.TextDisplay,
 				control: line);
 
 			caretBlinkingTimer.Elapsed += CaretFlicker_Event;
@@ -100,8 +108,6 @@ namespace TEditBoxWPF.Objects
 					return;
 				}
 
-				string nextLineText = Parent.Lines[newPosition.Line].Text;
-
 				newPosition.Character = 0;
 			}
 
@@ -111,7 +117,7 @@ namespace TEditBoxWPF.Objects
 		/// <summary>
 		/// Moves the caret by the specified line offset.
 		/// </summary>
-		/// <param name="charOffset">The number of lines to offset the caret by.</param>
+		/// <param name="lineOffset">The number of lines to offset the caret by.</param>
 		public void MoveLine(int lineOffset)
 		{
 			TIndex currentPosition = caretLine.Position;
@@ -135,15 +141,15 @@ namespace TEditBoxWPF.Objects
 		/// </summary>
 		private void CaretFlicker_Event(object? sender, ElapsedEventArgs e)
 		{
-			caretLine.VirtualisedObject.Dispatcher.Invoke(() =>
+			caretLine.VirtualizedObject.Dispatcher.Invoke(() =>
 			{
-				if (caretLine.VirtualisedObject.Visibility == Visibility.Visible)
+				if (caretLine.VirtualizedObject.Visibility == Visibility.Visible)
 				{
-					caretLine.VirtualisedObject.Visibility = Visibility.Hidden;
+					caretLine.VirtualizedObject.Visibility = Visibility.Hidden;
 				}
 				else
 				{
-					caretLine.VirtualisedObject.Visibility = Visibility.Visible;
+					caretLine.VirtualizedObject.Visibility = Visibility.Visible;
 				}
 			});
 		}

@@ -19,19 +19,19 @@ namespace TEditBoxWPF.Objects
 	/// <summary>
 	/// Represents a non-text object such as a caret within a <see cref="TEditBox"/>.
 	/// 
-	/// Handles virtualisation rendering and safe <see cref="Control"/>
-	/// placement within a virtualised itemcontrol.<br/><br/>
+	/// Handles virtualization rendering and safe <see cref="Control"/>
+	/// placement within a virtualized itemcontrol.<br/><br/>
 	/// 
-	/// <see cref="ItemContainerGenerator"/>'s which use virtualised panels dynamically
+	/// <see cref="ItemContainerGenerator"/>'s which use virtualized panels dynamically
 	/// generate and destroy rendered items based on whether they are visible
 	/// to the user.<br/><br/>
 	/// 
 	/// When rendered items are destroyed, any changes made to items
 	/// are also destroyed, such as manually added objects. <br/><br/>
 	/// 
-	/// This class will safely regenerate objects within a virtualised panel.
+	/// This class will safely regenerate objects within a virtualized panel.
 	/// </summary>
-	public class VirtualisedTextObject<T> where T: FrameworkElement
+	public class VirtualizedTextObject<T> where T: FrameworkElement
 	{
 		/// <summary>
 		/// The parent of this text object.
@@ -41,7 +41,7 @@ namespace TEditBoxWPF.Objects
 		/// <summary>
 		/// The control to render. Offset the control using hte
 		/// </summary>
-		public T VirtualisedObject { get; }
+		public T VirtualizedObject { get; }
 
 		/// <summary>
 		/// The line object which this control is placed in.
@@ -78,9 +78,9 @@ namespace TEditBoxWPF.Objects
 		}
 
 		/// <summary>
-		/// The virtualised panel which the control belongs to.
+		/// The virtualized panel which the control belongs to.
 		/// </summary>
-		public ItemsControl VirtualisationPanel { get; }
+		public ItemsControl VirtualizationPanel { get; }
 
 		public bool IsPlaced
 		{
@@ -91,7 +91,7 @@ namespace TEditBoxWPF.Objects
 
 				if (!value && previousBox != null)
 				{
-					previousBox.Children.Remove(VirtualisedObject);
+					previousBox.Children.Remove(VirtualizedObject);
 				}
 				else
 				{
@@ -104,23 +104,23 @@ namespace TEditBoxWPF.Objects
 		private int characterPos;
 		private int previousLine;
 
-		public VirtualisedTextObject(TEditBox parent, TLine line, ItemsControl virtualisationPanel, T control)
+		public VirtualizedTextObject(TEditBox parent, TLine line, ItemsControl virtualizationPanel, T control)
 		{
 			Parent = parent;
-			VirtualisedObject = control;
-			VirtualisationPanel = virtualisationPanel;
+			VirtualizedObject = control;
+			VirtualizationPanel = virtualizationPanel;
 			Line = line;
 
-			virtualisationPanel.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
-			virtualisationPanel.ItemContainerGenerator.ItemsChanged += ItemContainerGenerator_ItemsChanged;
+			virtualizationPanel.ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
+			virtualizationPanel.ItemContainerGenerator.ItemsChanged += ItemContainerGenerator_ItemsChanged;
 		}
 
 		/// <summary>
-		/// Informs the object to update the placement of the virtualised object.
+		/// Informs the object to update the placement of the virtualized object.
 		/// </summary>
 		private void ItemContainerGenerator_StatusChanged(object? sender, EventArgs e)
 		{
-			if (VirtualisationPanel.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
+			if (VirtualizationPanel.ItemContainerGenerator.Status == GeneratorStatus.ContainersGenerated)
 			{
 				Place();
 			}
@@ -156,19 +156,19 @@ namespace TEditBoxWPF.Objects
 			string marginWidth = Line.Text[0..Math.Max(0, characterPos)];
 			double marginFromCharacterPosition = Parent.measurer.MeasureTextSize(marginWidth, true).Width;
 
-			VirtualisedObject.HorizontalAlignment = HorizontalAlignment.Left;
-			VirtualisedObject.Margin = new Thickness(marginFromCharacterPosition, 0, 0, 0);
+			VirtualizedObject.HorizontalAlignment = HorizontalAlignment.Left;
+			VirtualizedObject.Margin = new Thickness(marginFromCharacterPosition, 0, 0, 0);
 
 			// If the user can already see the box.
-			if (!box.Children.Contains(VirtualisedObject))
+			if (!box.Children.Contains(VirtualizedObject))
 			{
 				// The rectangle has to be disconnected before 
-				if (previousBox != null && previousBox.Children.Contains(VirtualisedObject))
+				if (previousBox != null && previousBox.Children.Contains(VirtualizedObject))
 				{
-					previousBox.Children.Remove(VirtualisedObject);
+					previousBox.Children.Remove(VirtualizedObject);
 				}
 
-				box.Children.Add(VirtualisedObject);
+				box.Children.Add(VirtualizedObject);
 
 				previousBox = box;
 			}

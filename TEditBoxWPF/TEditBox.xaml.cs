@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TEditBoxWPF.Controls;
+using TEditBoxWPF.Controls.ScrollableItemsControl;
 using TEditBoxWPF.Converters;
 using TEditBoxWPF.LineStructure;
 using TEditBoxWPF.Objects;
@@ -24,10 +26,10 @@ using TEditBoxWPF.Utilities;
 
 namespace TEditBoxWPF
 {
-	/// <summary>
-	/// A text control allowing plaintext document and file editing.
-	/// </summary>
-	public partial class TEditBox : UserControl, INotifyPropertyChanged
+    /// <summary>
+    /// A text control allowing plaintext document and file editing.
+    /// </summary>
+    public partial class TEditBox : UserControl, INotifyPropertyChanged
 	{
 		/// <summary>
 		/// The text content loaded into this text box.
@@ -82,7 +84,7 @@ namespace TEditBoxWPF
 			}
 		}
 		private int _tabSize = 8;
-		private VirtualisedTextObject<Rectangle> TestObject;
+		private VirtualizedTextObject<Rectangle> TestObject;
 
 		/// <summary>
 		/// The font family which will be used to render the text.
@@ -129,6 +131,7 @@ namespace TEditBoxWPF
 		internal readonly TextMeasurer measurer = new();
 		private ScrollViewer TextDisplayScrollViewer; 
 		private ScrollViewer LineNumbersScrollViewer;
+		private ScrollingVirtualizationPanel aaaa;
 
 		public TEditBox()
 		{
@@ -137,6 +140,7 @@ namespace TEditBoxWPF
 			InitializeComponent();
 			TextTabWidthConverter converter = (TextTabWidthConverter)Resources["tabConverter"];
 			converter.parent = this;
+			aaaa = TextDisplay.GetDescendantByType<ScrollingVirtualizationPanel>();
 
 			TextDisplayScrollViewer = TextDisplay.GetDescendantByType<SmoothScrollviewer>();
 			LineNumbersScrollViewer = LineNumberDisplay.GetDescendantByType<SmoothScrollviewer>();

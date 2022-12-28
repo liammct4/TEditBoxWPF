@@ -70,6 +70,7 @@
 						 Grid.Column="1"
 						 Grid.Row="2"/>
 			</Grid>
+			<Border/>
 		</StackPanel>
 		<text:TEditBox x:Name="textBox"
 					   Grid.Row="2"

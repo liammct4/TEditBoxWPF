@@ -24,7 +24,7 @@ namespace TextBoxTester
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private VirtualisedTextObject<Rectangle> testObject;
+		private VirtualizedTextObject<Rectangle> testObject;
 
 		public MainWindow()
 		{

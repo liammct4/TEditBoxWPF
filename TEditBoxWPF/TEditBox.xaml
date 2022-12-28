@@ -7,6 +7,7 @@
 			 xmlns:convert="clr-namespace:TEditBoxWPF.Converters"
 			 xmlns:controls="clr-namespace:TEditBoxWPF.Controls"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+			 xmlns:sic="clr-namespace:TEditBoxWPF.Controls.ScrollableItemsControl"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="450" d:DesignWidth="800"
 			 DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -71,22 +72,22 @@
 					</ControlTemplate>
 				</GridSplitter.Template>
 			</GridSplitter>
-			<ItemsControl x:Name="TextDisplay"
+			<sic:ScrollableItemsControl x:Name="TextDisplay"
 						  ItemsSource="{Binding Lines}"
 						  Grid.Column="2"
 						  Background="Transparent"
 						  Cursor="IBeam"
 						  VirtualizingPanel.ScrollUnit="Pixel"
 						  PreviewKeyDown="TextDisplay_PreviewKeyDown">
-				<ItemsControl.ItemsPanel>
+				<sic:ScrollableItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
-						<VirtualizingStackPanel IsItemsHost="True"/>
+						<sic:ScrollingVirtualizationPanel IsItemsHost="True"/>
 					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-				<ItemsControl.FocusVisualStyle>
+				</sic:ScrollableItemsControl.ItemsPanel>
+				<sic:ScrollableItemsControl.FocusVisualStyle>
 					<Style/>
-				</ItemsControl.FocusVisualStyle>
-				<ItemsControl.ItemTemplate>
+				</sic:ScrollableItemsControl.FocusVisualStyle>
+				<sic:ScrollableItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid UseLayoutRounding="True">
 							<TextBlock x:Name="RenderText"
@@ -96,9 +97,9 @@
 									   TextEffects="{Binding Text, Converter={StaticResource tabConverter}}"/>
 						</Grid>
 					</DataTemplate>
-				</ItemsControl.ItemTemplate>
+				</sic:ScrollableItemsControl.ItemTemplate>
 				<!-- Override ScrollViewer to provide smooth scrolling. -->
-				<ItemsControl.Template>
+				<sic:ScrollableItemsControl.Template>
 					<ControlTemplate TargetType="ItemsControl">
 						<Border Margin="-1 0 0 0">
 							<controls:SmoothScrollviewer CanContentScroll="True"
@@ -108,8 +109,8 @@
 							</controls:SmoothScrollviewer>
 						</Border>
 					</ControlTemplate>
-				</ItemsControl.Template>
-			</ItemsControl>
+				</sic:ScrollableItemsControl.Template>
+			</sic:ScrollableItemsControl>
 		</Grid>
 	</Border>
 </UserControl>
