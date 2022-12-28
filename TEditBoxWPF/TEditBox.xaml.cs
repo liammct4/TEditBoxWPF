@@ -163,7 +163,7 @@ namespace TEditBoxWPF
 
 			measurer.MeasuringOptions = options;
 
-			MainCaret.CaretLine.IsPlaced = true;
+			MainCaret.caretLine.IsPlaced = true;
 		}
 
 		/// <summary>

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows;
+using System.Timers;
 
 namespace TEditBoxWPF.Utilities
 {
@@ -45,6 +46,17 @@ namespace TEditBoxWPF.Utilities
 				}
 			}
 			return (T)foundElement;
+		}
+
+		/// <summary>
+		/// Resets the timers total time elapsed to 0. The <see cref="Timer.Elapsed"/> event
+		/// will be raised after <see cref="Timer.Interval"/> has occured after calling
+		/// this method.
+		/// </summary>
+		public static void Reset(this Timer timer)
+		{
+			timer.Stop();
+			timer.Start();
 		}
 	}
 }

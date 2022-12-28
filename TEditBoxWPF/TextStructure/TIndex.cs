@@ -104,7 +104,7 @@ namespace TEditBoxWPF.TextStructure
 		{
 			if (obj is TIndex index)
 			{
-				return index == this;
+				return index.Line == Line && index.Character == Character;
 			}
 			else
 			{
