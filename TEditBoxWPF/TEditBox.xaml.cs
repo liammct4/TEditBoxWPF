@@ -22,6 +22,7 @@ using TEditBoxWPF.Controls.ScrollableItemsControl;
 using TEditBoxWPF.Converters;
 using TEditBoxWPF.LineStructure;
 using TEditBoxWPF.Objects;
+using TEditBoxWPF.TextStructure;
 using TEditBoxWPF.Utilities;
 
 namespace TEditBoxWPF
@@ -207,6 +208,59 @@ namespace TEditBoxWPF
 		/// Stops the scrollviewer from adjusting when the arrow keys are pressed.
 		/// </summary>
 		private void TextDisplay_PreviewKeyDown(object sender, KeyEventArgs e) => e.Handled = true;
+
+		/// <summary>
+		/// Moves the caret to the clicked line and character position.
+		/// </summary>
+		private void TextClick_Event(object sender, MouseButtonEventArgs e)
+		{
+			Grid source = (Grid)sender;
+			ContentPresenter item = source.GetParentByType<ContentPresenter>();
+
+			int lineIndex = TextDisplay.ItemContainerGenerator.IndexFromContainer(item);
+			TLine line = Lines[lineIndex];
+
+			int character = 0;
+			double pixelWidthToMatch = e.GetPosition(source).X;
+
+			if (measurer.MeasureTextSize(line.Text, useCustomFormatting: true).Width <= pixelWidthToMatch)
+			{
+				character = line.Text.Length;
+			}
+			else
+			{
+				for (int i = 0; i <= line.Text.Length; i++)
+				{
+					var newI = Math.Min(i, line.Text.Length);
+
+					string text = line.Text[0..newI];
+
+					if (measurer.MeasureTextSize(text, useCustomFormatting: true).Width > pixelWidthToMatch)
+					{
+						var a = line.Text[newI - 1].ToString();
+						double charWidth = measurer.MeasureTextSize(a, useCustomFormatting: true).Width;
+						double currentTextWidth = measurer.MeasureTextSize(text, useCustomFormatting: true).Width;
+
+						double threshold = currentTextWidth - (charWidth / 2);
+
+
+						if (pixelWidthToMatch > threshold)
+						{
+							character = i;
+						}
+						else
+						{
+							character = i - 1;
+						}
+
+						break;
+					}
+				}
+			}
+
+
+			MainCaret.Position = new TIndex(lineIndex, character);
+		}
 
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;
