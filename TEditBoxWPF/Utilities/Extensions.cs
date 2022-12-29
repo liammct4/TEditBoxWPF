@@ -58,5 +58,31 @@ namespace TEditBoxWPF.Utilities
 			timer.Stop();
 			timer.Start();
 		}
+
+		/// <summary>
+		/// Finds the first element of the specified type <typeparamref name="T"/>
+		/// in the tree above the <paramref name="element"/> provided.
+		/// </summary>
+		/// <param name="element">The control to search.</param>
+		/// <returns>The first occurance of <typeparamref name="T"/>.</returns>
+		public static T GetParentByType<T>(this DependencyObject element) where T : Visual
+		{
+			// Taken from: https://www.infragistics.com/community/blogs/b/blagunas/posts/find-the-parent-control-of-a-specific-type-in-wpf-and-silverlight
+			DependencyObject parentObject = VisualTreeHelper.GetParent(element);
+
+			if (parentObject == null)
+			{
+				return null;
+			}
+
+			if (parentObject is T parent)
+			{
+				return parent;
+			}
+			else
+			{
+				return GetParentByType<T>(parentObject);
+			}
+		}
 	}
 }

@@ -89,7 +89,8 @@
 				</sic:ScrollableItemsControl.FocusVisualStyle>
 				<sic:ScrollableItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Grid UseLayoutRounding="True">
+						<Grid UseLayoutRounding="True"
+							  PreviewMouseDown="TextClick_Event">
 							<TextBlock x:Name="RenderText"
 									   Margin="0"
 									   Text="{Binding Text}"
