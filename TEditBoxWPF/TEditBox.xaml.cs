@@ -187,13 +187,29 @@ namespace TEditBoxWPF
 		/// </summary>
 		private void ControlInput_Event(object sender, KeyEventArgs e)
 		{
+			bool ctrlModifer = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+
 			switch (e.Key)
 			{
 				case Key.Left:
-					MainCaret.MoveChar(-1);
+					if (ctrlModifer)
+					{
+						MainCaret.SkipLeft();
+					}
+					else
+					{
+						MainCaret.MoveChar(-1);
+					}
 					break;
 				case Key.Right:
-					MainCaret.MoveChar(1);
+					if (ctrlModifer)
+					{
+						MainCaret.SkipRight();
+					}
+					else
+					{
+						MainCaret.MoveChar(1);
+					}
 					break;
 				case Key.Up:
 					MainCaret.MoveLine(-1);

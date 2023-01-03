@@ -12,6 +12,7 @@ using TEditBoxWPF.LineStructure;
 using TEditBoxWPF.TextStructure;
 using System.Windows.Media.Animation;
 using TEditBoxWPF.Utilities;
+using System.Diagnostics;
 
 namespace TEditBoxWPF.Objects
 {
@@ -152,6 +153,100 @@ namespace TEditBoxWPF.Objects
 					caretLine.VirtualizedObject.Visibility = Visibility.Visible;
 				}
 			});
+		}
+
+		/// <summary>
+		/// Moves the caret to the left of the current word.
+		/// </summary>
+		public void SkipLeft()
+		{
+			TIndex position = Position;
+			string lineText = Parent.Lines[position.Line].Text;
+
+			int index = -1;
+			bool characterVisited = false;
+
+			for (int i = position.Character - 1; i > 0; i--)
+			{
+				bool isStop = char.IsPunctuation(lineText[i]) || char.IsWhiteSpace(lineText[i]);
+
+				if (!isStop)
+				{
+					characterVisited = true;
+				}
+
+				if (isStop && characterVisited)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			if (index == -1)
+			{
+				if (position.Character != 0)
+				{
+					position.Character = 0;
+				}
+				else
+				{
+					MoveChar(-1);
+					return;
+				}
+			}
+			else
+			{
+				position.Character = index + 1;
+			}
+
+			Position = position;
+		}
+
+		/// <summary>
+		/// Moves the caret to the right of the current word.
+		/// </summary>
+		public void SkipRight()
+		{
+			TIndex position = Position;
+			string lineText = Parent.Lines[position.Line].Text;
+
+			int index = -1;
+			bool characterVisited = false;
+
+			for (int i = position.Character; i < lineText.Length; i++)
+			{
+				bool isStop = char.IsPunctuation(lineText[i]) || char.IsWhiteSpace(lineText[i]);
+
+				if (!isStop)
+				{
+					characterVisited = true;
+				}
+
+				if (isStop && characterVisited)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			if (index == -1)
+			{
+				if (position.Character != lineText.Length)
+				{
+					position.Character = lineText.Length;
+				}
+				else
+				{
+					MoveChar(1);
+					return;
+				}
+			}
+			else
+			{
+				position.Character = index;
+			}
+
+			Position = position;
 		}
 	}
 }
