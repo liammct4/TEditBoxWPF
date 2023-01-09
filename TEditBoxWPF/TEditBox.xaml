@@ -90,7 +90,8 @@
 				<sic:ScrollableItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Grid UseLayoutRounding="True"
-							  PreviewMouseDown="TextClick_Event">
+							  PreviewMouseDown="TextClick_Event"
+							  PreviewMouseMove="Grid_PreviewMouseMove">
 							<TextBlock x:Name="RenderText"
 									   Margin="0"
 									   Text="{Binding Text}"

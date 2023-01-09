@@ -188,34 +188,35 @@ namespace TEditBoxWPF
 		private void ControlInput_Event(object sender, KeyEventArgs e)
 		{
 			bool ctrlModifer = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+			bool shiftModifer = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 
 			switch (e.Key)
 			{
 				case Key.Left:
 					if (ctrlModifer)
 					{
-						MainCaret.SkipLeft();
+						MainCaret.SkipLeft(!shiftModifer);
 					}
 					else
 					{
-						MainCaret.MoveChar(-1);
+						MainCaret.MoveChar(-1, !shiftModifer);
 					}
 					break;
 				case Key.Right:
 					if (ctrlModifer)
 					{
-						MainCaret.SkipRight();
+						MainCaret.SkipRight(!shiftModifer);
 					}
 					else
 					{
-						MainCaret.MoveChar(1);
+						MainCaret.MoveChar(1, !shiftModifer);
 					}
 					break;
 				case Key.Up:
-					MainCaret.MoveLine(-1);
+					MainCaret.MoveLine(-1, !shiftModifer);
 					break;
 				case Key.Down:
-					MainCaret.MoveLine(1);
+					MainCaret.MoveLine(1, !shiftModifer);
 					break;
 			}
 		}
@@ -232,57 +233,70 @@ namespace TEditBoxWPF
 		{
 			Grid source = (Grid)sender;
 			ContentPresenter item = source.GetParentByType<ContentPresenter>();
+			TLine line = (TLine)TextDisplay.ItemContainerGenerator.ItemFromContainer(item);
 
-			int lineIndex = TextDisplay.ItemContainerGenerator.IndexFromContainer(item);
-			TLine line = Lines[lineIndex];
+			int clickedCharIndex = GetCharacterAtPixel(line, e.GetPosition(item).X);
+
+			MainCaret.Position = new TIndex(line.Position, clickedCharIndex);
+			MainCaret.SelectStartPosition = new TIndex(line.Position, clickedCharIndex);
+		}
+
+		private int GetCharacterAtPixel(TLine line, double pixelPosition)
+		{
+			if (measurer.MeasureTextSize(line.Text, useCustomFormatting: true).Width <= pixelPosition)
+			{
+				return line.Text.Length;
+			}
 
 			int character = 0;
-			double pixelWidthToMatch = e.GetPosition(source).X;
 
-			if (measurer.MeasureTextSize(line.Text, useCustomFormatting: true).Width <= pixelWidthToMatch)
+			for (int i = 0; i <= line.Text.Length; i++)
 			{
-				character = line.Text.Length;
-			}
-			else
-			{
-				for (int i = 0; i <= line.Text.Length; i++)
+				int charIndex = Math.Min(i, line.Text.Length);
+
+				string currentText = line.Text[0..charIndex];
+
+				if (measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width > pixelPosition)
 				{
-					int charIndex = Math.Min(i, line.Text.Length);
+					string currentCharacter = line.Text[charIndex - 1].ToString();
+					double charWidth = measurer.MeasureTextSize(currentCharacter, useCustomFormatting: true).Width;
+					double currentTextWidth = measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width;
 
-					string currentText = line.Text[0..charIndex];
+					double threshold = currentTextWidth - (charWidth / 2);
 
-					if (measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width > pixelWidthToMatch)
+					if (pixelPosition > threshold)
 					{
-						// If the right of the character width is clicked,
-						// the character will move to the right.
-						// Other wise if the user clicks to the left of the character,
-						// the character will move to the left.
-						string currentCharacter = line.Text[charIndex - 1].ToString();
-						double charWidth = measurer.MeasureTextSize(currentCharacter, useCustomFormatting: true).Width;
-						double currentTextWidth = measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width;
-			
-						double threshold = currentTextWidth - (charWidth / 2);
-
-						if (pixelWidthToMatch > threshold)
-						{
-							character = i;
-						}
-						else
-						{
-							character = i - 1;
-						}
-
-						break;
+						character = i;
 					}
+					else
+					{
+						character = i - 1;
+					}
+
+					break;
 				}
 			}
 
-			MainCaret.Position = new TIndex(lineIndex, character);
+			return character;
+		}
+
+		private void Grid_PreviewMouseMove(object sender, MouseEventArgs e)
+		{
+			if (Mouse.LeftButton == MouseButtonState.Pressed)
+			{
+				Grid source = (Grid)sender;
+				ContentPresenter item = source.GetParentByType<ContentPresenter>();
+				TLine line = (TLine)TextDisplay.ItemContainerGenerator.ItemFromContainer(item);
+
+				int clickedCharIndex = GetCharacterAtPixel(line, e.GetPosition(item).X);
+
+				MainCaret.Position = new TIndex(line.Position, clickedCharIndex);
+			}
 		}
 
 		#region Property Changed
 		public event PropertyChangedEventHandler? PropertyChanged;
-		
+
 		private void OnPropertyChanged(string property)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));

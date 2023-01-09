@@ -22,6 +22,8 @@ namespace TEditBoxWPF.Objects
 	/// </summary>
 	public class TCaret
 	{
+		public static SolidColorBrush SelectColour = new SolidColorBrush(Color.FromArgb(82, 64, 157, 208));
+
 		/// <summary>
 		/// The text box this caret is contained in.
 		/// </summary>
@@ -43,11 +45,28 @@ namespace TEditBoxWPF.Objects
 					Parent.TextDisplay.ScrollIntoView(value.Line);
 
 					caretBlinkingTimer.Reset();
+
+					RefreshSelection();
 				}
 			}
 		}
 
+		public TIndex SelectStartPosition
+		{
+			get => _selectStartPosition;
+			set
+			{
+				_selectStartPosition = value;
+				RefreshSelection();
+			}
+		}
+		private TIndex _selectStartPosition;
+
+		private VirtualizedTextObject<Rectangle> SelectFirst => selection.First();
+		private VirtualizedTextObject<Rectangle> SelectLast => selection.Last();
+
 		internal VirtualizedTextObject<Rectangle> caretLine;
+		internal readonly List<VirtualizedTextObject<Rectangle>> selection = new();
 		private Timer caretBlinkingTimer = new()
 		{
 			Interval = 700,
@@ -69,14 +88,105 @@ namespace TEditBoxWPF.Objects
 				control: line);
 
 			caretBlinkingTimer.Elapsed += CaretFlicker_Event;
+			
 			caretBlinkingTimer.Start();
+		}
+
+		private void RefreshSelection()
+		{
+			selection.ForEach(x => x.IsPlaced = false);
+			selection.Clear();
+
+			TIndex indDifference = SelectStartPosition - Position;
+			double difference = Math.Abs(indDifference.Line);
+
+			if (difference == 0)
+			{
+				TLine line = Parent.Lines[Position.Line];
+				int startChar = Math.Min(Position.Character, SelectStartPosition.Character);
+				int endChar = Math.Max(Position.Character, SelectStartPosition.Character);
+
+				Rectangle rect = new()
+				{
+					Fill = SelectColour,
+					Width = Parent.measurer.MeasureTextSize(line.Text[startChar..endChar], true).Width
+				};
+				VirtualizedTextObject<Rectangle> select = new(Parent, line, Parent.TextDisplay, rect)
+				{
+					IsPlaced = true,
+				};
+				select.Position = select.Position.OffsetCharacter(startChar);
+
+				selection.Add(select);
+			}
+			else
+			{
+				TIndex firstIndex = TIndex.Min(SelectStartPosition, Position);
+				TIndex lastIndex = TIndex.Max(SelectStartPosition, Position);
+
+				TLine firstLine = Parent.Lines[firstIndex.Line];
+				TLine lastLine = Parent.Lines[lastIndex.Line];
+
+				VirtualizedTextObject<Rectangle> firstRect = new VirtualizedTextObject<Rectangle>(
+					parent: Parent,
+					line: firstLine,
+					virtualizationPanel: Parent.TextDisplay,
+					control: new Rectangle()
+					{
+						Fill = SelectColour,
+						Width = Parent.measurer.MeasureTextSize(firstLine.Text[firstIndex.Character..firstLine.Text.Length] + ' ', true).Width
+					}
+				)
+				{
+					IsPlaced = true
+				};
+				VirtualizedTextObject<Rectangle> lastRect = new VirtualizedTextObject<Rectangle>(
+					parent: Parent,
+					line: lastLine,
+					virtualizationPanel: Parent.TextDisplay,
+					control: new Rectangle()
+					{
+						Fill = SelectColour,
+						Width = Parent.measurer.MeasureTextSize(lastLine.Text[0..lastIndex.Character], true).Width
+					}
+				)
+				{
+					IsPlaced = true
+				};
+
+				firstRect.Position = new(firstRect.Position.Line, firstIndex.Character);
+				lastRect.Position = new(lastRect.Position.Line, 0);
+
+				selection.Add(firstRect);
+				selection.Add(lastRect);
+
+
+				for (int i = firstIndex.Line + 1; i < lastIndex.Line; i++)
+				{
+					VirtualizedTextObject<Rectangle> rect = new VirtualizedTextObject<Rectangle>(
+						parent: Parent,
+						line: Parent.Lines[i],
+						virtualizationPanel: Parent.TextDisplay,
+						control: new Rectangle()
+						{
+							Fill = SelectColour,
+							Width = Parent.measurer.MeasureTextSize(Parent.Lines[i].Text + ' ', true).Width
+						}
+					)
+					{
+						IsPlaced = true
+					};
+
+					selection.Add(rect);
+				}
+			}
 		}
 
 		/// <summary>
 		/// Moves the caret by the specified character offset, the caret can move on to the next or previous lines.
 		/// </summary>
 		/// <param name="charOffset">The number of characters to offset the caret by.</param>
-		public void MoveChar(int charOffset)
+		public void MoveChar(int charOffset, bool changeSelect)
 		{
 			TLine currentLine = caretLine.Line;
 			TIndex currentPosition = caretLine.Position;
@@ -113,13 +223,18 @@ namespace TEditBoxWPF.Objects
 			}
 
 			Position = newPosition;
+
+			if (changeSelect)
+			{
+				SelectStartPosition = newPosition;
+			}
 		}
 
 		/// <summary>
 		/// Moves the caret by the specified line offset.
 		/// </summary>
 		/// <param name="lineOffset">The number of lines to offset the caret by.</param>
-		public void MoveLine(int lineOffset)
+		public void MoveLine(int lineOffset, bool changeSelect)
 		{
 			TIndex currentPosition = caretLine.Position;
 
@@ -135,6 +250,11 @@ namespace TEditBoxWPF.Objects
 			currentPosition.Character = Math.Min(nextLineText.Length, currentPosition.Character);
 
 			Position = currentPosition;
+
+			if (changeSelect)
+			{
+				SelectStartPosition = currentPosition;
+			}
 		}
 
 		/// <summary>
@@ -158,7 +278,7 @@ namespace TEditBoxWPF.Objects
 		/// <summary>
 		/// Moves the caret to the left of the current word.
 		/// </summary>
-		public void SkipLeft()
+		public void SkipLeft(bool changeSelect)
 		{
 			TIndex position = Position;
 			string lineText = Parent.Lines[position.Line].Text;
@@ -190,7 +310,7 @@ namespace TEditBoxWPF.Objects
 				}
 				else
 				{
-					MoveChar(-1);
+					MoveChar(-1, changeSelect);
 					return;
 				}
 			}
@@ -200,12 +320,17 @@ namespace TEditBoxWPF.Objects
 			}
 
 			Position = position;
+
+			if (changeSelect)
+			{
+				SelectStartPosition = position;
+			}
 		}
 
 		/// <summary>
 		/// Moves the caret to the right of the current word.
 		/// </summary>
-		public void SkipRight()
+		public void SkipRight(bool changeSelect)
 		{
 			TIndex position = Position;
 			string lineText = Parent.Lines[position.Line].Text;
@@ -237,7 +362,7 @@ namespace TEditBoxWPF.Objects
 				}
 				else
 				{
-					MoveChar(1);
+					MoveChar(1, changeSelect);
 					return;
 				}
 			}
@@ -247,6 +372,11 @@ namespace TEditBoxWPF.Objects
 			}
 
 			Position = position;
+
+			if (changeSelect)
+			{
+				SelectStartPosition = position;
+			}
 		}
 	}
 }

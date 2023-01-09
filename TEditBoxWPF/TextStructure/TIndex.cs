@@ -65,6 +65,9 @@ namespace TEditBoxWPF.TextStructure
 		/// <returns>A new offset index.</returns>
 		public TIndex OffsetCharacter(int characterOffset) => Offset(0, characterOffset);
 
+		public static TIndex Min(TIndex a, TIndex b) => a <= b ? a : b;
+		public static TIndex Max(TIndex a, TIndex b) => a >= b ? a : b;
+
 		public static bool operator ==(TIndex a, TIndex b) => a.Equals(b);
 		public static bool operator !=(TIndex a, TIndex b) => !a.Equals(b);
 		public static bool operator >(TIndex a, TIndex b)
@@ -99,6 +102,8 @@ namespace TEditBoxWPF.TextStructure
 		}
 		public static bool operator >=(TIndex a, TIndex b) => a > b || a == b;
 		public static bool operator <=(TIndex a, TIndex b) => a < b || a == b;
+		public static TIndex operator -(TIndex a, TIndex b) => new(a.Line - b.Line, a.Character - b.Character);
+		public static TIndex operator +(TIndex a, TIndex b) => new(a.Line + b.Line, a.Character + b.Character);
 
 		public override bool Equals(object obj)
 		{
