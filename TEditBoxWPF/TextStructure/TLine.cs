@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Windows.Media;
 using TEditBoxWPF.Utilities;
 using System.Windows.Shapes;
+using System.Diagnostics.Metrics;
 
 namespace TEditBoxWPF.LineStructure
 {
@@ -35,23 +36,91 @@ namespace TEditBoxWPF.LineStructure
 			Text = text;
 		}
 
+		/// <summary>
+		/// Refreshes the text by setting the TextBlock text of the line to <see cref="Text"/> and also recalculates tab widths.
+		/// </summary>
 		internal void RefreshText()
 		{
 			// Done after text has changed.
-			ContentPresenter presenter = Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(this) as ContentPresenter;
+			if (Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(this) is not ContentPresenter presenter)
+			{
+				return;
+			}
+
 			TextBlock textBlock = presenter.GetDescendantByType<TextBlock>();
 
 			textBlock.Text = Text;
 			
-			textBlock.TextEffects = (TextEffectCollection)Parent.tabConverter.Convert(Text, typeof(string), null, CultureInfo.CurrentCulture);
+			textBlock.TextEffects = (TextEffectCollection)Parent.tabConverter.Convert(Text,
+				typeof(string),
+				null,
+				CultureInfo.CurrentCulture);
 		}
 
-		public void InsertText(int character, string text)
+		/// <summary>
+		/// Inserts text at a character position in the line.
+		/// </summary>
+		/// <param name="characterIndex">The character index to insert the text at.</param>
+		/// <param name="text">The text to insert.</param>
+		/// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="characterIndex"/> is greater than the current text length.</exception>
+		public void InsertText(int characterIndex, string text)
 		{
-			string newText = Text.Insert(character, text);
+			if (characterIndex > Text.Length)
+			{
+				throw new ArgumentOutOfRangeException(nameof(characterIndex), "The character index provided was greater than the line text length.");
+			}
+
+			string newText = Text.Insert(characterIndex, text);
 			Text = newText;
 
 			RefreshText();
+		}
+
+		/// <summary>
+		/// Retrieves the character index at a pixel offset from the left of the text.
+		/// 
+		/// Provides the length of the line text if the pixel position is bigger than the line text.
+		/// </summary>
+		/// <param name="line">The line to get the character from.</param>
+		/// <param name="pixelPosition">The pixel offset of the character.</param>
+		/// <returns>The character at the pixel position <paramref name="pixelPosition"/>.</returns>
+		public int GetCharacterAtPixel(double pixelPosition)
+		{
+			if (Parent.measurer.MeasureTextSize(Text, useCustomFormatting: true).Width <= pixelPosition)
+			{
+				return Text.Length;
+			}
+
+			int character = 0;
+
+			for (int i = 0; i <= Text.Length; i++)
+			{
+				int charIndex = Math.Min(i, Text.Length);
+
+				string currentText = Text[0..charIndex];
+
+				if (Parent.measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width > pixelPosition)
+				{
+					string currentCharacter = Text[charIndex - 1].ToString();
+					double charWidth = Parent.measurer.MeasureTextSize(currentCharacter, useCustomFormatting: true).Width;
+					double currentTextWidth = Parent.measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width;
+
+					double threshold = currentTextWidth - (charWidth / 2);
+
+					if (pixelPosition > threshold)
+					{
+						character = i;
+					}
+					else
+					{
+						character = i - 1;
+					}
+
+					break;
+				}
+			}
+
+			return character;
 		}
 	}
 }

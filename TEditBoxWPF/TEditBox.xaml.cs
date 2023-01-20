@@ -132,25 +132,26 @@ namespace TEditBoxWPF
 		public TCaret MainCaret { get; }
 
 		internal readonly TextMeasurer measurer = new();
-		internal TextTabWidthConverter tabConverter;
-		private ScrollViewer TextDisplayScrollViewer; 
-		private ScrollViewer LineNumbersScrollViewer;
+		internal readonly TextTabWidthConverter tabConverter;
+		private readonly ScrollViewer TextDisplayScrollViewer; 
+		private readonly ScrollViewer LineNumbersScrollViewer;
 
 		public TEditBox()
 		{
+			// The text box can never be empty, it always has to have at least one line.
 			_lines = new ObservableCollection<TLine>() { new TLine(this, "") };
 
 			InitializeComponent();
-			TextTabWidthConverter converter = (TextTabWidthConverter)Resources["tabConverter"];
-			converter.parent = this;
-			aaaa = TextDisplay.GetDescendantByType<ScrollingVirtualizationPanel>();
+
+			tabConverter = (TextTabWidthConverter)Resources["tabConverter"];
+			tabConverter.parent = this;
 
 			TextDisplayScrollViewer = TextDisplay.GetDescendantByType<SmoothScrollviewer>();
 			LineNumbersScrollViewer = LineNumberDisplay.GetDescendantByType<SmoothScrollviewer>();
 
 			MainCaret = new TCaret(this);
 
-			tabConverter = Resources["tabConverter"] as TextTabWidthConverter;
+			// Handle set properties.
 			Loaded += TEditBox_Loaded;
 		}
 
@@ -233,57 +234,10 @@ namespace TEditBoxWPF
 			ContentPresenter item = source.GetParentByType<ContentPresenter>();
 			TLine line = (TLine)TextDisplay.ItemContainerGenerator.ItemFromContainer(item);
 
-			int clickedCharIndex = GetCharacterAtPixel(line, e.GetPosition(item).X);
+			int clickedCharIndex = line.GetCharacterAtPixel(e.GetPosition(item).X);
 
 			MainCaret.Position = new TIndex(line.Position, clickedCharIndex);
 			MainCaret.SelectStartPosition = new TIndex(line.Position, clickedCharIndex);
-		}
-
-		/// <summary>
-		/// Retrieves the character index at a pixel offset from the left of the text.
-		/// 
-		/// Provides the length of the line text if the pixel position is bigger than the line text.
-		/// </summary>
-		/// <param name="line">The line to get the character from.</param>
-		/// <param name="pixelPosition">The pixel offset of the character.</param>
-		/// <returns></returns>
-		private int GetCharacterAtPixel(TLine line, double pixelPosition)
-		{
-			if (measurer.MeasureTextSize(line.Text, useCustomFormatting: true).Width <= pixelPosition)
-			{
-				return line.Text.Length;
-			}
-
-			int character = 0;
-
-			for (int i = 0; i <= line.Text.Length; i++)
-			{
-				int charIndex = Math.Min(i, line.Text.Length);
-
-				string currentText = line.Text[0..charIndex];
-
-				if (measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width > pixelPosition)
-				{
-					string currentCharacter = line.Text[charIndex - 1].ToString();
-					double charWidth = measurer.MeasureTextSize(currentCharacter, useCustomFormatting: true).Width;
-					double currentTextWidth = measurer.MeasureTextSize(currentText, useCustomFormatting: true).Width;
-
-					double threshold = currentTextWidth - (charWidth / 2);
-
-					if (pixelPosition > threshold)
-					{
-						character = i;
-					}
-					else
-					{
-						character = i - 1;
-					}
-
-					break;
-				}
-			}
-
-			return character;
 		}
 
 		/// <summary>
@@ -297,7 +251,7 @@ namespace TEditBoxWPF
 				ContentPresenter item = source.GetParentByType<ContentPresenter>();
 				TLine line = (TLine)TextDisplay.ItemContainerGenerator.ItemFromContainer(item);
 
-				int clickedCharIndex = GetCharacterAtPixel(line, e.GetPosition(item).X);
+				int clickedCharIndex = line.GetCharacterAtPixel(e.GetPosition(item).X);
 
 				MainCaret.Position = new TIndex(line.Position, clickedCharIndex);
 			}
@@ -320,6 +274,8 @@ namespace TEditBoxWPF
 			{
 				case Key.Down:
 				case Key.Up:
+				case Key.Left:
+				case Key.Right:
 					e.Handled = true;
 					break;
 			}
