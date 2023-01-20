@@ -258,24 +258,6 @@ namespace TEditBoxWPF.Objects
 		}
 
 		/// <summary>
-		/// Flickers the curser when inactive, event is raised by <see cref="caretBlinkingTimer"/>.
-		/// </summary>
-		private void CaretFlicker_Event(object? sender, ElapsedEventArgs e)
-		{
-			caretLine.VirtualizedObject.Dispatcher.Invoke(() =>
-			{
-				if (caretLine.VirtualizedObject.Visibility == Visibility.Visible)
-				{
-					caretLine.VirtualizedObject.Visibility = Visibility.Hidden;
-				}
-				else
-				{
-					caretLine.VirtualizedObject.Visibility = Visibility.Visible;
-				}
-			});
-		}
-
-		/// <summary>
 		/// Moves the caret to the left of the current word.
 		/// </summary>
 		public void SkipLeft(bool changeSelect)
@@ -377,6 +359,39 @@ namespace TEditBoxWPF.Objects
 			{
 				SelectStartPosition = position;
 			}
+		}
+
+		/// <summary>
+		/// Inserts a string of text before the caret position.
+		/// </summary>
+		/// <param name="text">The text to insert.</param>
+		public void InputText(string text)
+		{
+			// TODO: Add newline handling.
+			TLine line = caretLine.Line;
+
+			line.InsertText(Position.Character, text);
+
+			Position = Position.OffsetCharacter(text.Length);
+			SelectStartPosition = Position;
+		}
+
+		/// <summary>
+		/// Flickers the curser when inactive, event is raised by <see cref="caretBlinkingTimer"/>.
+		/// </summary>
+		private void CaretFlicker_Event(object? sender, ElapsedEventArgs e)
+		{
+			caretLine.VirtualizedObject.Dispatcher.Invoke(() =>
+			{
+				if (caretLine.VirtualizedObject.Visibility == Visibility.Visible)
+				{
+					caretLine.VirtualizedObject.Visibility = Visibility.Hidden;
+				}
+				else
+				{
+					caretLine.VirtualizedObject.Visibility = Visibility.Visible;
+				}
+			});
 		}
 	}
 }

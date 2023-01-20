@@ -132,9 +132,9 @@ namespace TEditBoxWPF
 		public TCaret MainCaret { get; }
 
 		internal readonly TextMeasurer measurer = new();
+		internal TextTabWidthConverter tabConverter;
 		private ScrollViewer TextDisplayScrollViewer; 
 		private ScrollViewer LineNumbersScrollViewer;
-		private ScrollingVirtualizationPanel aaaa;
 
 		public TEditBox()
 		{
@@ -150,6 +150,7 @@ namespace TEditBoxWPF
 
 			MainCaret = new TCaret(this);
 
+			tabConverter = Resources["tabConverter"] as TextTabWidthConverter;
 			Loaded += TEditBox_Loaded;
 		}
 
@@ -224,11 +225,6 @@ namespace TEditBoxWPF
 		}
 
 		/// <summary>
-		/// Stops the scrollviewer from adjusting when the arrow keys are pressed.
-		/// </summary>
-		private void TextDisplay_PreviewKeyDown(object sender, KeyEventArgs e) => e.Handled = true;
-
-		/// <summary>
 		/// Moves the caret to the clicked line and character position.
 		/// </summary>
 		private void TextClick_Event(object sender, MouseButtonEventArgs e)
@@ -243,6 +239,14 @@ namespace TEditBoxWPF
 			MainCaret.SelectStartPosition = new TIndex(line.Position, clickedCharIndex);
 		}
 
+		/// <summary>
+		/// Retrieves the character index at a pixel offset from the left of the text.
+		/// 
+		/// Provides the length of the line text if the pixel position is bigger than the line text.
+		/// </summary>
+		/// <param name="line">The line to get the character from.</param>
+		/// <param name="pixelPosition">The pixel offset of the character.</param>
+		/// <returns></returns>
 		private int GetCharacterAtPixel(TLine line, double pixelPosition)
 		{
 			if (measurer.MeasureTextSize(line.Text, useCustomFormatting: true).Width <= pixelPosition)
@@ -282,7 +286,10 @@ namespace TEditBoxWPF
 			return character;
 		}
 
-		private void Grid_PreviewMouseMove(object sender, MouseEventArgs e)
+		/// <summary>
+		/// Handles caret select dragging.
+		/// </summary>
+		private void TextMouseMove_Event(object sender, MouseEventArgs e)
 		{
 			if (Mouse.LeftButton == MouseButtonState.Pressed)
 			{
@@ -293,6 +300,28 @@ namespace TEditBoxWPF
 				int clickedCharIndex = GetCharacterAtPixel(line, e.GetPosition(item).X);
 
 				MainCaret.Position = new TIndex(line.Position, clickedCharIndex);
+			}
+		}
+
+		/// <summary>
+		/// Adds the keyboard input at the main caret position.
+		/// </summary>
+		private void TextBox_TextInput(object sender, TextCompositionEventArgs e)
+		{
+			MainCaret.InputText(e.Text);
+		}
+
+		/// <summary>
+		/// Stops the scrollviewer from adjusting when the arrow keys are pressed.
+		/// </summary>
+		private void TextDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
+		{
+			switch (e.Key)
+			{
+				case Key.Down:
+				case Key.Up:
+					e.Handled = true;
+					break;
 			}
 		}
 

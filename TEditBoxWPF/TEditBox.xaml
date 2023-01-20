@@ -20,7 +20,8 @@
 			Padding="4 0 0 0"
 			BorderBrush="#707070"
 			SnapsToDevicePixels="True"
-			PreviewKeyDown="ControlInput_Event">
+			PreviewKeyDown="ControlInput_Event"
+			TextInput="TextBox_TextInput">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"
@@ -91,7 +92,7 @@
 					<DataTemplate>
 						<Grid UseLayoutRounding="True"
 							  PreviewMouseDown="TextClick_Event"
-							  PreviewMouseMove="Grid_PreviewMouseMove">
+							  PreviewMouseMove="TextMouseMove_Event">
 							<TextBlock x:Name="RenderText"
 									   Margin="0"
 									   Text="{Binding Text}"
