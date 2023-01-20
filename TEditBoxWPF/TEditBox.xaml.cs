@@ -44,6 +44,8 @@ namespace TEditBoxWPF
 					.Replace(Environment.NewLine, "\n")
 					.Split("\n")
 					.Select(x => new TLine(this, x)));
+				MainCaret.Position = TIndex.Start;
+				MainCaret.SelectStartPosition = TIndex.Start;
 			}
 		}
 
