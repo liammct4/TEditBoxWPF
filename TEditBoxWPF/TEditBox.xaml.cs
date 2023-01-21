@@ -176,6 +176,43 @@ namespace TEditBoxWPF
 		}
 
 		/// <summary>
+		/// Removes a selection of text in between two points.
+		/// </summary>
+		/// <param name="startPosition">The first position.</param>
+		/// <param name="endPosition">The second position.</param>
+		public void DeleteText(TIndex startPosition, TIndex endPosition)
+		{
+			TIndex beginningIndex = TIndex.Min(startPosition, endPosition);
+			TIndex endIndex = TIndex.Max(startPosition, endPosition);
+
+			if (beginningIndex.Line == endIndex.Line)
+			{
+				Lines[beginningIndex.Line].DeleteText(beginningIndex.Character, endIndex.Character);
+				return;
+			}
+
+			// Remove the text after the start of the first position.
+			TLine startLine = Lines[beginningIndex.Line];
+			startLine.DeleteText(beginningIndex.Character, startLine.Text.Length);
+
+			// Store the end text to merge.
+			TLine endLine = Lines[endIndex.Line];
+			string endText = endLine.Text[endIndex.Character..endLine.Text.Length];
+
+			// Merge the text from the last line onto the first line.
+			startLine.Text += endText;
+			
+			Lines.RemoveAt(endIndex.Line);
+			startLine.RefreshText();
+
+			// Remove in between lines.
+			for (int i = endIndex.Line - 1; i > beginningIndex.Line; i--)
+			{
+				Lines.RemoveAt(i);
+			}
+		}
+
+		/// <summary>
 		/// Fired when the text box has been scrolled. Syncs the textbox scroll to the line number scroll.
 		/// </summary>
 		private void TextboxSyncScroll_Event(object sender, ScrollChangedEventArgs e) => LineNumbersScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
@@ -221,6 +258,9 @@ namespace TEditBoxWPF
 					break;
 				case Key.Down:
 					MainCaret.MoveLine(1, !shiftModifer);
+					break;
+				case Key.Back:
+					MainCaret.Backspace();
 					break;
 			}
 		}
@@ -276,6 +316,7 @@ namespace TEditBoxWPF
 				case Key.Up:
 				case Key.Left:
 				case Key.Right:
+				case Key.Back:
 					e.Handled = true;
 					break;
 			}

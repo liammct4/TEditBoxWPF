@@ -77,6 +77,30 @@ namespace TEditBoxWPF.LineStructure
 		}
 
 		/// <summary>
+		/// Removes a certain amount of text in between two positions.
+		/// </summary>
+		public void DeleteText(int startPosition, int endPosition)
+		{
+			if (startPosition < 0 || startPosition > Text.Length)
+			{
+				throw new ArgumentOutOfRangeException(nameof(startPosition), "The start position was bigger or smaller than the line text length.");
+			}
+
+			if (endPosition < 0 || endPosition > Text.Length)
+			{
+				throw new ArgumentOutOfRangeException(nameof(endPosition), "The end position was bigger or smaller than the line text length.");
+			}
+
+			int smallestStart = Math.Min(startPosition, endPosition);
+			int biggestEnd = Math.Max(startPosition, endPosition);
+
+			string newText = Text.Remove(smallestStart, biggestEnd - smallestStart);
+			Text = newText;
+
+			RefreshText();
+		}
+
+		/// <summary>
 		/// Retrieves the character index at a pixel offset from the left of the text.
 		/// 
 		/// Provides the length of the line text if the pixel position is bigger than the line text.

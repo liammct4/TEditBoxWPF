@@ -377,6 +377,50 @@ namespace TEditBoxWPF.Objects
 		}
 
 		/// <summary>
+		/// Performs a backspace.
+		/// </summary>
+		public void Backspace()
+		{
+			if (Position == SelectStartPosition)
+			{
+				if (Position.Character == 0)
+				{
+					int previousIndex = Position.Line - 1;
+
+					if (previousIndex >= 0)
+					{
+						TLine previousLine = Parent.Lines[previousIndex];
+						int previousWidth = previousLine.Text.Length;
+
+						string text = caretLine.Line.Text;
+						Parent.Lines.Remove(caretLine.Line);
+
+						previousLine.Text += text;
+						previousLine.RefreshText();
+
+						Position = new TIndex(previousIndex, previousWidth);
+						SelectStartPosition = new TIndex(previousIndex, previousWidth);
+					}
+				}
+				else
+				{
+					Position = Position.OffsetCharacter(-1);
+					SelectStartPosition = Position;
+
+					caretLine.Line.DeleteText(Position.Character, Position.Character + 1);
+				}
+			}
+			else
+			{
+				TIndex start = TIndex.Min(Position, SelectStartPosition);
+				Parent.DeleteText(Position, SelectStartPosition);
+
+				Position = start;
+				SelectStartPosition = start;
+			}
+		}
+
+		/// <summary>
 		/// Flickers the curser when inactive, event is raised by <see cref="caretBlinkingTimer"/>.
 		/// </summary>
 		private void CaretFlicker_Event(object? sender, ElapsedEventArgs e)
