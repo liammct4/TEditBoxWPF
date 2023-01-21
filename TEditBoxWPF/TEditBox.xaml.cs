@@ -262,6 +262,9 @@ namespace TEditBoxWPF
 				case Key.Back:
 					MainCaret.Backspace();
 					break;
+				case Key.Tab:
+					MainCaret.InputText('\t');
+					break;
 			}
 		}
 
@@ -310,15 +313,11 @@ namespace TEditBoxWPF
 		/// </summary>
 		private void TextDisplay_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
-			switch (e.Key)
+			// These keys need to be handled manually, setting handled = true will stop the TextBox_TextInput event firing,
+			// which will stop inserting bad characters such as \b.
+			if (HelperData.interceptKeys.Contains(e.Key))
 			{
-				case Key.Down:
-				case Key.Up:
-				case Key.Left:
-				case Key.Right:
-				case Key.Back:
-					e.Handled = true;
-					break;
+				e.Handled = true;
 			}
 		}
 

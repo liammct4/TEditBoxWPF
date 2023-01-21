@@ -362,6 +362,12 @@ namespace TEditBoxWPF.Objects
 		}
 
 		/// <summary>
+		/// Inserts a character before the caret position.
+		/// </summary>
+		/// <param name="character">The character to insert.</param>
+		public void InputText(char character) => InputText(character.ToString());
+
+		/// <summary>
 		/// Inserts a string of text before the caret position.
 		/// </summary>
 		/// <param name="text">The text to insert.</param>
