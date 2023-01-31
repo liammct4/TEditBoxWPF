@@ -382,6 +382,15 @@ namespace TEditBoxWPF.Objects
 		/// <param name="text">The text to insert.</param>
 		public void InputText(string text)
 		{
+			TIndex start = TIndex.Min(Position, SelectStartPosition);
+			TIndex pos = Position;
+			TIndex select = SelectStartPosition;
+
+			Position = start;
+			SelectStartPosition = start;
+
+			Parent.DeleteText(pos, select);
+
 			Position = Parent.InsertText(Position, text);
 			SelectStartPosition = Position;
 		}
