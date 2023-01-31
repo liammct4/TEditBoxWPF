@@ -13,7 +13,6 @@
 			 DataContext="{Binding RelativeSource={RelativeSource Self}}">
 	<UserControl.Resources>
 		<convert:TextTabWidthConverter x:Name="tabConverter" x:Key="tabConverter"/>
-		<convert:LineCountConverter x:Name="lineCountConverter" x:Key="lineCountConverter"/>
 		<BooleanToVisibilityConverter x:Key="visibilityConverter"/>
 	</UserControl.Resources>
 	<Border BorderThickness="1"
@@ -32,7 +31,6 @@
 			<ItemsControl x:Name="LineNumberDisplay"
 						  Margin="0 0 0 17"
 						  Visibility="{Binding ShowLineNumbers, Converter={StaticResource visibilityConverter}}"
-						  ItemsSource="{Binding Lines, Converter={StaticResource lineCountConverter}}"
 						  VirtualizingPanel.ScrollUnit="Pixel">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
@@ -90,8 +88,7 @@
 				</sic:ScrollableItemsControl.FocusVisualStyle>
 				<sic:ScrollableItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Grid UseLayoutRounding="True"
-							  PreviewMouseDown="TextClick_Event"
+						<Grid PreviewMouseDown="TextClick_Event"
 							  PreviewMouseMove="TextMouseMove_Event">
 							<TextBlock x:Name="RenderText"
 									   Margin="0"

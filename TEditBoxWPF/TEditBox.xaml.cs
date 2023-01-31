@@ -58,6 +58,10 @@ namespace TEditBoxWPF
 			set
 			{
 				_lines = value;
+
+				value.CollectionChanged += LinesChanged_Event;
+				UpdateLineCount();
+
 				OnPropertyChanged(nameof(Lines));
 			}
 		}
@@ -139,10 +143,10 @@ namespace TEditBoxWPF
 
 		public TEditBox()
 		{
-			// The text box can never be empty, it always has to have at least one line.
-			_lines = new ObservableCollection<TLine>() { new TLine(this, "") };
-
 			InitializeComponent();
+
+			// The text box can never be empty, it always has to have at least one line.
+			Lines = new ObservableCollection<TLine>() { new TLine(this, "") };
 
 			tabConverter = (TextTabWidthConverter)Resources["tabConverter"];
 			tabConverter.parent = this;
@@ -154,6 +158,38 @@ namespace TEditBoxWPF
 
 			// Handle set properties.
 			Loaded += TEditBox_Loaded;
+		}
+
+		/// <summary>
+		/// Updates the line numbers whenever a line is added or removed.
+		/// </summary>
+		private void LinesChanged_Event(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			UpdateLineCount();
+		}
+
+		/// <summary>
+		/// Updates the current line numbers.
+		/// </summary>
+		private void UpdateLineCount()
+		{
+			int currentLineCount = Lines.Count;
+			int previousLineCount = LineNumberDisplay.Items.Count;
+
+			if (currentLineCount > previousLineCount)
+			{
+				for (int i = previousLineCount; i < currentLineCount; i++)
+				{
+					LineNumberDisplay.Items.Add(i + 1);
+				}
+
+				return;
+			}
+
+			for (int i = previousLineCount; i > currentLineCount; i--)
+			{
+				LineNumberDisplay.Items.RemoveAt(i - 1);
+			}
 		}
 
 		/// <summary>
