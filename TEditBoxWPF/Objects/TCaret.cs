@@ -129,8 +129,9 @@ namespace TEditBoxWPF.Objects
 			}
 			else
 			{
-				TIndex firstIndex = TIndex.Min(SelectStartPosition, Position);
-				TIndex lastIndex = TIndex.Max(SelectStartPosition, Position);
+				// Prevent the selection from overflowing the text size.
+				TIndex firstIndex = TIndex.Min(TIndex.Min(SelectStartPosition, Position), Parent.TextEnd);
+				TIndex lastIndex = TIndex.Min(TIndex.Max(SelectStartPosition, Position), Parent.TextEnd);
 
 				TLine firstLine = Parent.Lines[firstIndex.Line];
 				TLine lastLine = Parent.Lines[lastIndex.Line];
