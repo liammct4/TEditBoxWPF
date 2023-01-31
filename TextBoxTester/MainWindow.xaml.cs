@@ -68,5 +68,5 @@ namespace TextBoxTester
 		{
 			textBox.MainCaret.Position = new TIndex(int.Parse(LineBox.Text), int.Parse(CharBox.Text));
 		}
-	}
+    }
 }

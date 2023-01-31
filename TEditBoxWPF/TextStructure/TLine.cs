@@ -9,6 +9,7 @@ using System.Windows.Media;
 using TEditBoxWPF.Utilities;
 using System.Windows.Shapes;
 using System.Diagnostics.Metrics;
+using TEditBoxWPF.TextStructure;
 
 namespace TEditBoxWPF.LineStructure
 {
@@ -24,7 +25,16 @@ namespace TEditBoxWPF.LineStructure
 		/// <summary>
 		/// The text of this line, do not modify externally.
 		/// </summary>
-		public string Text { get; internal set; }
+		public string Text
+		{
+			get => _text;
+			set
+			{
+				_text = value;
+				RefreshText();
+			}
+		}
+		private string _text;
 		/// <summary>
 		/// The position of this line.
 		/// </summary>
@@ -42,7 +52,7 @@ namespace TEditBoxWPF.LineStructure
 		internal void RefreshText()
 		{
 			// Done after text has changed.
-			if (Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(this) is not ContentPresenter presenter)
+			if (!Parent.IsLoaded || Parent.TextDisplay.ItemContainerGenerator.ContainerFromItem(this) is not ContentPresenter presenter)
 			{
 				return;
 			}
@@ -62,18 +72,9 @@ namespace TEditBoxWPF.LineStructure
 		/// </summary>
 		/// <param name="characterIndex">The character index to insert the text at.</param>
 		/// <param name="text">The text to insert.</param>
-		/// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="characterIndex"/> is greater than the current text length.</exception>
 		public void InsertText(int characterIndex, string text)
 		{
-			if (characterIndex > Text.Length)
-			{
-				throw new ArgumentOutOfRangeException(nameof(characterIndex), "The character index provided was greater than the line text length.");
-			}
-
-			string newText = Text.Insert(characterIndex, text);
-			Text = newText;
-
-			RefreshText();
+			Parent.InsertText(new TIndex(Position, characterIndex), text);
 		}
 
 		/// <summary>

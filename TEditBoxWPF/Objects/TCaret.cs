@@ -373,12 +373,7 @@ namespace TEditBoxWPF.Objects
 		/// <param name="text">The text to insert.</param>
 		public void InputText(string text)
 		{
-			// TODO: Add newline handling.
-			TLine line = caretLine.Line;
-
-			line.InsertText(Position.Character, text);
-
-			Position = Position.OffsetCharacter(text.Length);
+			Position = Parent.InsertText(Position, text);
 			SelectStartPosition = Position;
 		}
 

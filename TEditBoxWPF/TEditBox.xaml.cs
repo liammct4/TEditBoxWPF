@@ -87,7 +87,6 @@ namespace TEditBoxWPF
 			}
 		}
 		private int _tabSize = 8;
-		private VirtualizedTextObject<Rectangle> TestObject;
 
 		/// <summary>
 		/// The font family which will be used to render the text.
@@ -173,6 +172,84 @@ namespace TEditBoxWPF
 			measurer.MeasuringOptions = options;
 
 			MainCaret.caretLine.IsPlaced = true;
+		}
+
+		/// <summary>
+		/// Retrieves a line at a set position, if the line does not exist, a new line is created.
+		/// </summary>
+		/// <returns>A new or already existing line.</returns>
+		private TLine ResolveLine(int line)
+		{
+			if (line > Lines.Count - 1)
+			{
+				for (int i = Lines.Count; i < line; i++)
+				{
+					Lines.Add(new TLine(this, string.Empty));
+				}
+
+				TLine endLine = new(this, string.Empty);
+				Lines.Add(endLine);
+
+				return endLine;
+			}
+			
+			return Lines[line];
+		}
+
+		/// <summary>
+		/// Inserts a string of text at the position <paramref name="position"/>.
+		/// </summary>
+		/// <param name="position">The position of the text.</param>
+		/// <param name="text">The text to insert.</param>
+		public TIndex InsertText(TIndex position, string text)
+		{
+			// String.Split cannot tell the difference between an empty string or a newline. So handle manually.
+			if (text == Environment.NewLine)
+			{
+				TLine currentLine = ResolveLine(position.Line);
+				TLine newLine = new(this, currentLine.Text[position.Character..]);
+
+				currentLine.Text = currentLine.Text[0..position.Character];
+
+				Lines.Insert(position.Line + 1, newLine);
+				
+				return new TIndex(position.Line + 1, 0);
+			}
+			
+			string[] lines = text.Split(Environment.NewLine, StringSplitOptions.None);
+
+			// No extra lines at all.
+			if (lines.Length == 1)
+			{
+				TLine line = ResolveLine(position.Line);
+				line.Text = line.Text.Insert(position.Character, lines.First());
+
+				return new TIndex(position.Line, position.Character + lines.First().Length);
+			}
+
+			// Inserting multiple lines.
+			TLine firstLine = ResolveLine(position.Line);
+			string endText = firstLine.Text[position.Character..];
+
+			firstLine.Text = firstLine.Text[0..(position.Character)] + lines.First();
+
+			TLine lastLine = new(this, lines.Last() + endText);
+			Lines.Insert(position.Line + 1, lastLine);
+
+			for (int i = 1; i < lines.Length - 1; i++)
+			{
+				TLine newLine = new(this, lines[i]);
+
+				if (position.Line + i > Lines.Count)
+				{
+					Lines.Add(newLine);
+					continue;
+				}
+				
+				Lines.Insert(position.Line + i, newLine);
+			}
+
+			return new TIndex(lastLine.Position, lines.Last().Length);
 		}
 
 		/// <summary>
@@ -264,6 +341,9 @@ namespace TEditBoxWPF
 					break;
 				case Key.Tab:
 					MainCaret.InputText('\t');
+					break;
+				case Key.Enter:
+					MainCaret.InputText(Environment.NewLine);
 					break;
 			}
 		}
