@@ -63,6 +63,8 @@ namespace TEditBoxWPF
 		}
 		internal ObservableCollection<TLine> _lines;
 
+		public TIndex TextEnd => new(Lines.Count - 1, Lines.Last().Text.Length);
+
 		/// <summary>
 		/// Determines if the text line numbers are shown.
 		/// </summary>
@@ -401,6 +403,15 @@ namespace TEditBoxWPF
 						
 						MainCaret.DeleteSelectedText();
 						Clipboard.SetText(text);
+					}
+					break;
+				// Select All. (Ctrl + A)
+				case Key.A when ctrlModifer:
+					{
+						MainCaret.SelectStartPosition = TIndex.Start;
+						MainCaret.Position = TextEnd;
+
+						e.Handled = true;
 					}
 					break;
 			}
