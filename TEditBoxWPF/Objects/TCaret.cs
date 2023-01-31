@@ -51,6 +51,9 @@ namespace TEditBoxWPF.Objects
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the line and character position of the selection begin. This is at the opposite end of the caret line.
+		/// </summary>
 		public TIndex SelectStartPosition
 		{
 			get => _selectStartPosition;
@@ -62,12 +65,17 @@ namespace TEditBoxWPF.Objects
 		}
 		private TIndex _selectStartPosition;
 
+		/// <summary>
+		/// Gets the text selected under this caret between <see cref="Position"/> and <see cref="SelectStartPosition"/>.
+		/// </summary>
+		public string SelectionText => Parent.GetText(Position, SelectStartPosition);
+
 		private VirtualizedTextObject<Rectangle> SelectFirst => selection.First();
 		private VirtualizedTextObject<Rectangle> SelectLast => selection.Last();
 
 		internal VirtualizedTextObject<Rectangle> caretLine;
 		internal readonly List<VirtualizedTextObject<Rectangle>> selection = new();
-		private Timer caretBlinkingTimer = new()
+		private readonly Timer caretBlinkingTimer = new()
 		{
 			Interval = 700,
 		};
@@ -402,23 +410,31 @@ namespace TEditBoxWPF.Objects
 						Position = new TIndex(previousIndex, previousWidth);
 						SelectStartPosition = new TIndex(previousIndex, previousWidth);
 					}
-				}
-				else
-				{
-					Position = Position.OffsetCharacter(-1);
-					SelectStartPosition = Position;
 
-					caretLine.Line.DeleteText(Position.Character, Position.Character + 1);
+					return;
 				}
-			}
-			else
-			{
-				TIndex start = TIndex.Min(Position, SelectStartPosition);
-				Parent.DeleteText(Position, SelectStartPosition);
 
-				Position = start;
-				SelectStartPosition = start;
+				Position = Position.OffsetCharacter(-1);
+				SelectStartPosition = Position;
+
+				caretLine.Line.DeleteText(Position.Character, Position.Character + 1);
+
+				return;
 			}
+
+			DeleteSelectedText();
+		}
+
+		/// <summary>
+		/// Removes the text in between <see cref="Position"/> and <see cref="SelectStartPosition"/>.
+		/// </summary>
+		public void DeleteSelectedText()
+		{
+			TIndex start = TIndex.Min(Position, SelectStartPosition);
+			Parent.DeleteText(Position, SelectStartPosition);
+
+			Position = start;
+			SelectStartPosition = start;
 		}
 
 		/// <summary>

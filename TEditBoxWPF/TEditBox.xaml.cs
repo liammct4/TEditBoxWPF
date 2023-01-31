@@ -253,6 +253,41 @@ namespace TEditBoxWPF
 		}
 
 		/// <summary>
+		/// Gets a selection of text from the textbox at <paramref name="startPosition"/> and <paramref name="endPosition"/>.
+		/// </summary>
+		/// <param name="startPosition"></param>
+		/// <param name="endPosition"></param>
+		/// <returns></returns>
+		public string GetText(TIndex startPosition, TIndex endPosition)
+		{
+			TIndex start = TIndex.Min(startPosition, endPosition);
+			TIndex end = TIndex.Max(startPosition, endPosition);
+
+			if (start.Line == end.Line)
+			{
+				TLine line = Lines[start.Line];
+
+				return line.Text[start.Character..end.Character];
+			}
+
+			TLine firstLine = Lines[start.Line];
+			TLine lastLine = Lines[end.Line];
+
+			StringBuilder joinSb = new StringBuilder()
+				.AppendLine(firstLine.Text[start.Character..]);
+
+			for (int i = start.Line + 1; i < end.Line; i++)
+			{
+				TLine line = Lines[i];
+				joinSb.AppendLine(line.Text);
+			}
+
+			joinSb.Append(lastLine.Text[..end.Character]);
+
+			return joinSb.ToString();
+		}
+
+		/// <summary>
 		/// Removes a selection of text in between two points.
 		/// </summary>
 		/// <param name="startPosition">The first position.</param>
@@ -344,6 +379,29 @@ namespace TEditBoxWPF
 					break;
 				case Key.Enter:
 					MainCaret.InputText(Environment.NewLine);
+					break;
+				// Copying. (Ctrl + C)
+				case Key.C when ctrlModifer:
+					{
+						string copy = MainCaret.SelectionText;
+						Clipboard.SetText(copy);
+					}
+					break;
+				// Pasting. (Ctrl + V)
+				case Key.V when ctrlModifer:
+					{
+						string clipboard = Clipboard.GetText();
+						MainCaret.InputText(clipboard);
+					}
+					break;
+				// Cutting. (Ctrl + X)
+				case Key.X when ctrlModifer:
+					{
+						string text = MainCaret.SelectionText;
+						
+						MainCaret.DeleteSelectedText();
+						Clipboard.SetText(text);
+					}
 					break;
 			}
 		}
