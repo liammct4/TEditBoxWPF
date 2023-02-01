@@ -157,7 +157,12 @@ namespace TEditBoxWPF.Objects
 			double marginFromCharacterPosition = Parent.measurer.MeasureTextSize(marginWidth, true).Width;
 
 			VirtualizedObject.HorizontalAlignment = HorizontalAlignment.Left;
-			VirtualizedObject.Margin = new Thickness(marginFromCharacterPosition, 0, 0, 0);
+			VirtualizedObject.Margin= new Thickness(
+				left: marginFromCharacterPosition,
+				top: VirtualizedObject.Margin.Top,
+				right: VirtualizedObject.Margin.Right,
+				bottom: VirtualizedObject.Margin.Bottom
+			);
 
 			// If the user can already see the box.
 			if (!box.Children.Contains(VirtualizedObject))

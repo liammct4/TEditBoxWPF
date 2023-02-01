@@ -73,7 +73,7 @@ namespace TEditBoxWPF.Objects
 		private VirtualizedTextObject<Rectangle> SelectFirst => selection.First();
 		private VirtualizedTextObject<Rectangle> SelectLast => selection.Last();
 
-		internal VirtualizedTextObject<Rectangle> caretLine;
+		internal VirtualizedTextObject<Border> caretLine;
 		internal readonly List<VirtualizedTextObject<Rectangle>> selection = new();
 		private readonly Timer caretBlinkingTimer = new()
 		{
@@ -84,12 +84,14 @@ namespace TEditBoxWPF.Objects
 		{
 			Parent = parent;
 
-			Rectangle line = new()
+			Border line = new()
 			{
 				Width = 2,
-				Fill = new SolidColorBrush(Colors.Black)
+				Padding = new Thickness(0, 2, 0, 1),
+				Margin = new Thickness(0, -2, 0, -1),
+				Background = new SolidColorBrush(Colors.Black)
 			};
-			caretLine = new VirtualizedTextObject<Rectangle>(
+			caretLine = new VirtualizedTextObject<Border>(
 				parent: parent,
 				line: parent.Lines.First(),
 				virtualizationPanel: parent.TextDisplay,

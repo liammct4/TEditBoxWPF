@@ -43,6 +43,7 @@
 				<ItemsControl.ItemContainerStyle>
 					<Style TargetType="{x:Type ContentPresenter}">
 						<Setter Property="HorizontalAlignment" Value="{Binding LineNumberAlignment, RelativeSource={RelativeSource AncestorType=local:TEditBox}}"/>
+						<Setter Property="UseLayoutRounding" Value="True"/>
 					</Style>
 				</ItemsControl.ItemContainerStyle>
 				<ItemsControl.Template>
@@ -83,12 +84,10 @@
 						<sic:ScrollingVirtualizationPanel IsItemsHost="True"/>
 					</ItemsPanelTemplate>
 				</sic:ScrollableItemsControl.ItemsPanel>
-				<sic:ScrollableItemsControl.FocusVisualStyle>
-					<Style/>
-				</sic:ScrollableItemsControl.FocusVisualStyle>
 				<sic:ScrollableItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Grid PreviewMouseDown="TextClick_Event"
+						<Grid UseLayoutRounding="True"
+							  PreviewMouseDown="TextClick_Event"
 							  PreviewMouseMove="TextMouseMove_Event">
 							<TextBlock x:Name="RenderText"
 									   Margin="0"
@@ -106,6 +105,9 @@
 														 HorizontalScrollBarVisibility="Visible"
 														 ScrollChanged="TextboxSyncScroll_Event">
 								<ItemsPresenter/>
+								<controls:SmoothScrollviewer.FocusVisualStyle>
+									<Style/>
+								</controls:SmoothScrollviewer.FocusVisualStyle>
 							</controls:SmoothScrollviewer>
 						</Border>
 					</ControlTemplate>
