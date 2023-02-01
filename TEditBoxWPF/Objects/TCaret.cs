@@ -199,6 +199,25 @@ namespace TEditBoxWPF.Objects
 		/// <param name="charOffset">The number of characters to offset the caret by.</param>
 		public void MoveChar(int charOffset, bool changeSelect)
 		{
+			if (changeSelect && Position != SelectStartPosition)
+			{
+				TIndex start = TIndex.Min(Position, SelectStartPosition);
+				TIndex end = TIndex.Max(Position, SelectStartPosition);
+
+				if (charOffset > 0)
+				{
+					Position = end;
+					SelectStartPosition = end;
+				}
+				else
+				{
+					Position = start;
+					SelectStartPosition = start;
+				}
+
+				return;
+			}
+
 			TLine currentLine = caretLine.Line;
 			TIndex currentPosition = caretLine.Position;
 			string text = currentLine.Text;
